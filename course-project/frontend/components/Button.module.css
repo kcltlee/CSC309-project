@@ -1,0 +1,52 @@
+.button {
+  font-family: 'Neue Montreal', sans-serif;
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  border-radius: 35px;
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+.buttonText {
+  white-space: nowrap;
+}
+
+/* Primary Button */
+.primary {
+  background: var(--color-primary-green);
+  color: var(--color-white);
+}
+
+.primary:hover:not(:disabled) {
+  filter: brightness(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Secondary Button */
+.secondary {
+  background: transparent;
+  color: var(--color-black);
+  border: 2px solid var(--color-light-gray);
+}
+
+.secondary:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}

@@ -1,0 +1,41 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-m);
+  width: 100%;
+}
+
+.colorButton {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 60px;
+  border-radius: var(--radius-medium);
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.colorButton:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
+}
+
+.colorButton:focus {
+  outline: 2px solid var(--color-black);
+  outline-offset: 2px;
+}
+
+.colorButton.selected {
+  box-shadow: var(--shadow-card);
+}
+
+.checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

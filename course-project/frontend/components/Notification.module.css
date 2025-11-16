@@ -1,0 +1,66 @@
+.notification {
+  position: fixed;
+  top: var(--spacing-l);
+  right: var(--spacing-l);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  padding: var(--spacing-m) var(--spacing-l);
+  background-color: var(--color-white);
+  border: 2px solid var(--color-light-gray);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-modal);
+  z-index: 2000;
+  min-width: 300px;
+  max-width: 500px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification.success {
+  border-color: var(--color-primary-green);
+}
+
+.notification.error {
+  border-color: var(--color-primary-red);
+}
+
+.message {
+  flex: 1;
+  font-size: var(--font-size-body);
+  color: var(--color-black);
+  font-weight: 500;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-small);
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background-color: var(--color-light-gray);
+}
+
+.closeButton:focus {
+  outline: 2px solid var(--color-primary-blue);
+  outline-offset: 2px;
+}
+

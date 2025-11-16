@@ -1,0 +1,163 @@
+.container {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: 'Neue Montreal', sans-serif;
+  font-size: var(--font-size-body);
+  color: var(--color-black);
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: 15px;
+  outline: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.input::placeholder {
+  color: var(--color-medium-gray);
+}
+
+.input:hover:not(:disabled) {
+  border-color: #bfbfbf;
+}
+
+.input:focus {
+  border-color: #658e74;
+}
+
+.input:disabled {
+  background: var(--color-light-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  min-width: 280px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: var(--color-black);
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.navButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.monthYear {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-black);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-medium-gray);
+  padding: 8px 0;
+}
+
+.emptyDay {
+  padding: 8px;
+}
+
+.day {
+  padding: 8px;
+  text-align: center;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Neue Montreal', sans-serif;
+  font-size: 14px;
+  color: var(--color-black);
+  transition: all 0.15s ease;
+}
+
+.day:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.day.selected {
+  background: #658e74;
+  color: white;
+}
+
+.day.selected:hover {
+  background: #548164;
+}
+
+.day.disabled {
+  color: var(--color-medium-gray);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.timeSelector {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timeLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-black);
+}
+
+.timeInput {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: 'Neue Montreal', sans-serif;
+  font-size: 14px;
+  color: var(--color-black);
+  background: white;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.timeInput:hover {
+  border-color: #bfbfbf;
+}
+
+.timeInput:focus {
+  border-color: #658e74;
+}

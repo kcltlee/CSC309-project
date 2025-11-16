@@ -1,0 +1,107 @@
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-l);
+  background-color: var(--color-white);
+  border: 3px solid var(--color-light-gray);
+  border-radius: var(--radius-large);
+  padding: var(--spacing-l);
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-medium-gray);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  flex: 1;
+}
+
+.tamagotchiContainer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  padding: var(--spacing-s);
+  background-color: var(--color-light-gray);
+  border-radius: var(--radius-medium);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.username {
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.tamagotchiName {
+  font-size: var(--font-size-body);
+  color: var(--color-medium-gray);
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  gap: var(--spacing-s);
+  margin-top: var(--spacing-xs);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--spacing-xs);
+  background-color: var(--color-light-gray);
+  border-radius: var(--radius-small);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  min-width: 150px;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-s);
+  padding: var(--spacing-m);
+  border-radius: var(--radius-medium);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  width: 100%;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 600px) {
+  .card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .userSection {
+    justify-content: center;
+  }
+
+  .actions {
+    width: 100%;
+  }
+}

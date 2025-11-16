@@ -1,0 +1,324 @@
+.navWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-m) 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+}
+
+/* Logo */
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Main Navigation Pill */
+.navPill {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-light-gray);
+  border-radius: 50px;
+  padding: 6px 16px 6px 6px;
+  height: 56px;
+  position: relative;
+}
+
+/* Sliding Active Indicator */
+.activeIndicator {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  background: var(--color-white);
+  border-radius: 50px;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  z-index: 1;
+}
+
+/* Navigation Tabs */
+.navTab {
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-black);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  position: relative;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.navTab.active {
+  font-weight: 400;
+}
+
+/* Divider */
+.divider {
+  width: 2px;
+  height: 24px;
+  background: var(--color-medium-gray);
+  margin: 0 12px;
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+
+/* Status Indicators */
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-black);
+  white-space: nowrap;
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: default;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+  font-family: inherit;
+}
+
+@media (max-width: 768px) {
+  .indicator {
+    cursor: pointer;
+  }
+}
+
+.indicator:first-of-type {
+  margin-left: 0;
+}
+
+/* User Menu */
+.userMenuWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.userMenuButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: none;
+}
+
+.userMenuButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + var(--spacing-s));
+  right: 0;
+  background: var(--color-white);
+  border-radius: var(--radius-medium);
+  border: 2px solid var(--color-light-gray);
+  padding: 0;
+  min-width: 200px;
+  z-index: 1001;
+  animation: fadeIn var(--transition-fast);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 12px var(--spacing-m);
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-body);
+  color: var(--color-black);
+  transition: background var(--transition-fast);
+  text-decoration: none;
+  position: relative;
+}
+
+.dropdownItem::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-m);
+  right: var(--spacing-m);
+  height: 2px;
+  background: var(--color-light-gray);
+}
+
+.dropdownItem:last-child::after {
+  display: none;
+}
+
+.dropdownItem:hover {
+  background: var(--color-light-gray);
+}
+
+/* User Info Section */
+.userInfo {
+  padding: var(--spacing-m);
+  background: var(--color-white);
+  border-bottom: 2px solid var(--color-light-gray);
+}
+
+.username {
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  color: var(--color-black);
+  margin-bottom: 4px;
+}
+
+.userEmail {
+  font-size: var(--font-size-small);
+  color: var(--color-medium-gray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dropdown Icon */
+.dropdownIcon {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Logout Button Styling */
+.logoutButton {
+  color: var(--color-primary-red);
+  font-weight: 500;
+}
+
+.logoutButton:hover {
+  background: var(--color-light-gray);
+  color: var(--color-primary-red-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navWrapper {
+    padding: var(--spacing-s) var(--spacing-s);
+  }
+
+  .navContainer {
+    gap: var(--spacing-s);
+    max-width: 100%;
+  }
+
+  .navPill {
+    padding: 4px 8px;
+    height: 44px;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navPill::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navTab {
+    padding: 6px 10px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    margin: 0 4px;
+    height: 20px;
+  }
+
+  .indicator {
+    margin-left: 4px;
+  }
+
+  .indicator span {
+    display: none;
+  }
+
+  .indicator span.showOnMobile {
+    display: inline;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-white);
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 2px solid var(--color-light-gray);
+    font-size: 12px;
+    margin-top: 4px;
+    white-space: nowrap;
+    z-index: 1002;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .userMenuButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navPill {
+    padding: 4px 6px;
+    height: 40px;
+  }
+
+  .navTab {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .divider {
+    margin: 0 2px;
+  }
+
+  .indicator {
+    margin-left: 2px;
+  }
+}
