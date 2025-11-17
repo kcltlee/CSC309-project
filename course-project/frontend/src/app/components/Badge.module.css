@@ -2,8 +2,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-s) var(--spacing-m);
-  border-radius: var(--radius-small);
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: var(--font-size-body);
   font-weight: 500;
   white-space: nowrap;

@@ -50,3 +50,9 @@
 .secondary:active:not(:disabled) {
   transform: scale(0.98);
 }
+
+/* Additional Button Styles */
+.btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+}

@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import NavigationBar from './NavigationBar';
 
-export default function ConditionalNav() {
+export default function ConditionalNav({ items }) {
   const pathname = usePathname();
 
   // Hide navigation on login and register pages
@@ -13,5 +13,10 @@ export default function ConditionalNav() {
     return null;
   }
 
-  return <NavigationBar />;
+  return (
+    <>
+      <NavigationBar />
+      <nav>{JSON.stringify(items)}</nav>
+    </>
+  );
 }

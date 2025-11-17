@@ -46,6 +46,7 @@ export default function ColorPicker({
           </button>
         );
       })}
+      <input type="color" />
     </div>
   );
 }
