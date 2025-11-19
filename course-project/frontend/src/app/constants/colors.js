@@ -11,9 +11,9 @@ export const colors = {
   primaryYellowDark: '#c29343',
   primaryOrange: '#d18544',
   primaryOrangeDark: '#cc782f',
-  primaryGreen: '#658e74',
+  primaryGreen: '#6DB159',
   primaryGreenDark: '#548164',
-  primaryBlue: '#5a89ae',
+  primaryBlue: '#153169',
   primaryBlueDark: '#487ca5',
   primaryPurple: '#9676b3',
   primaryPurpleDark: '#8a66ab',
@@ -21,6 +21,7 @@ export const colors = {
   primaryPinkDark: '#b35488',
   primaryRed: '#ca665f',
   primaryRedDark: '#c4554d',
+  
 
   // Neutral Colors
   white: '#ffffff',
