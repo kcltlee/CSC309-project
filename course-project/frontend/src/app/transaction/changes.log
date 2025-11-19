@@ -1,0 +1,3 @@
+added QR depedency
+update users.js, events.js to record more fields (like amount and utorid)
+so that values are more consistent when displaying transactions
