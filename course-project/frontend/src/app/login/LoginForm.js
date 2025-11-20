@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext.jsx';
-import Button from '../components/Button.js';
+import Button from '../components/Button';
 import styles from './LoginForm.module.css';
-import colors from '../constants/colors.js';
+import colors from '../constants/colors';
 
 export default function LoginForm() {
   const [utorid, setUtorid] = useState('');
@@ -21,17 +21,39 @@ export default function LoginForm() {
     setError('');
     setLoading(true);
     try {
-        await login(utorid.trim(), password);
-        router.push("/"); // TODO: change to home page
+      await login(utorid.trim(), password);
+      router.push("/"); // TODO: change to home page
     } catch (err) {
-        setError(err?.message || 'Login failed');
+      setError(err?.message || 'Login failed');
     } finally {
-        setLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const generateToken = async () => {
+    if (!utorid.trim()) {
+      setError('Enter your UTORid first');
+      return;
+    }
+
+    const res = await fetch('/auth/resets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ utorid: utorid.trim() })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data?.error || 'Failed to generate reset token');
+    } else {
+  		sessionStorage.setItem('resetToken', data.resetToken); // TODO: remove once user has a way of recieving it
+			sessionStorage.setItem('utorid', utorid.trim());
+      router.push('/login/reset');
     }
   };
 
   return (
-    <div className={styles.container} style={{ '--primary': colors.primary, '--muted': colors.muted }}>
+    <div className={styles.container} style={{ '--primary': colors.primary }}>
       <div className={styles.card}>
         <h1 className={styles.title}>Sign in</h1>
 
@@ -60,6 +82,12 @@ export default function LoginForm() {
               required
             />
           </label>
+
+          <div>
+            <button type="button" className={styles.forgot} onClick={generateToken}>
+              Forgot password?
+            </button>
+          </div>
 
           {error && <div className={styles.error}>{error}</div>}
 

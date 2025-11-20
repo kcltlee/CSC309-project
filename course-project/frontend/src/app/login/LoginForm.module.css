@@ -57,6 +57,7 @@
   margin-top: 6px;
   display: flex;
   justify-content: flex-end;
+	gap: 10px;
 }
 
 .error {
@@ -65,4 +66,36 @@
   padding: 8px 10px;
   border-radius: 8px;
   font-size: 0.9rem;
+}
+
+.success {
+  color: #0a7a28;
+  background: rgba(10,122,40,0.06);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.note {
+	font-weight: normal;
+	text-align: left;
+}
+
+.forgot {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  font-size: 0.9rem;
+  padding: 0;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.tokenRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
 }

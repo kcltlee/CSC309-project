@@ -62,12 +62,6 @@ router.post('/resets', async (req, res) => {
     const ip = req.ip;
     const now = Date.now();
 
-    if (ipRequests[ip] && now - ipRequests[ip] < 60000) { // request made < 60 secs ago
-        return res.status(429).json({ error: "too many requests" });
-    } else {
-        
-    }
-    
     if (!req.body || !typeCheck(req.body, 1)) {
         return res.status(400).json({ error: "invalid payload" });
     }
@@ -79,8 +73,12 @@ router.post('/resets', async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { utorid: utorid } });
     if (!user) {
-        return res.status(404).json({ error: "user not found" });
+        return res.status(404).json({ error: "UTORid does not match any existing account" });
     }
+
+    if (ipRequests[ip] && now - ipRequests[ip] < 60000) { // request made < 60 secs ago
+        return res.status(429).json({ error: "Too many requests. Please wait 1 minute before trying again." });
+    } 
 
     ipRequests[ip] = now;
     const resetInfo = {
@@ -97,6 +95,12 @@ router.post('/resets', async (req, res) => {
 });
 
 router.post('/resets/:resetToken', async (req, res) => {
+    console.log(req.body)
+    const resetToken = req.params.resetToken;
+    if (!resetToken) {
+        return res.status(404).json({ error: "Missing reset token" });
+    }
+
     const { utorid, password } = req.body;
     if (!utorid)  {
         return res.status(400).json({ error: "invalid payload" });
@@ -107,30 +111,25 @@ router.post('/resets/:resetToken', async (req, res) => {
         return res.status(404).json({ error: "user not found" });
     }
 
-    if (!req.body || !typeCheck(req.body, 2)) {
-        return res.status(400).json({ error: "invalid payload" });
-    }
-
-    if (!password || password.length < 8 || password.length > 20
-        || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/.test(password)) {
-        return res.status(400).json({ error: "invalid password" });
-    }
-
-    const resetToken = req.params.resetToken;
-    
-    if (!resetToken) {
-        return res.status(404).json({ error: "invalid reset token" });
-    }
-
     const resetUsers = await prisma.user.findMany({ where: { resetToken: resetToken }});
     if (resetUsers.length !== 0 && (resetUsers.length > 1 || resetUsers[0].utorid !== utorid)) {
-        return res.status(401).json({ error: "resetToken mismatch" });
+        return res.status(401).json({ error: "Invalid reset token" });
     }
 
     if (resetToken !== user.resetToken) {
-        return res.status(404).json({ error: "invalid reset token" });
+        return res.status(404).json({ error: "Invalid reset token" });
     } else if (Date.now() > user.expiresAt) {
-        return res.status(410).json({ error: "reset token expired" });
+        return res.status(410).json({ error: "Reset token expired" });
+    }
+
+    // if (!req.body || !typeCheck(req.body, 2)) {
+    //     return res.status(400).json({ error: "invalid payload" });
+    // }
+
+    if (!password || password.length < 8 || password.length > 20
+        || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/.test(password)) {
+        return res.status(400).json({ error: "New password must have 8-20 characters and \
+            include at least 1 number, 1 uppercase, 1 lowercase, and 1 special character" });
     }
 
     await prisma.user.update({
