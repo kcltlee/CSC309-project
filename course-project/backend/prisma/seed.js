@@ -13,6 +13,7 @@ async function main() {
   const users = [
 	// superuser
 	{
+		id: 1,
 		utorid: 'superusr', 
 		name: 'Super User',
 		password: 'Admin!23', 
@@ -127,6 +128,143 @@ async function main() {
 	  	create: u,
 	});
   }
+      // for each transaction type, list of fields to display
+    // const typeFields = {
+    //     purchase: ["id", "utorid", "type", "remark", "createdBy", "amount", "spent", "promotionIds", "suspicious"],
+    //     transfer: ["id", "utorid", "type", "remark", "createdBy", "sender", "recipient", "amount"],
+    //     redemption: ["id", "utorid", "type", "remark", "createdBy", "amount", "promotionIds", "relatedId", "redeemed"],
+    //     adjustment: ["id", "utorid", "amount", "type", "relatedId", "promotionIds", "suspicious", "remark", "createdBy"],
+    //     event: ["id", "utorid", "recipient", "amount", "type", "eventId", "remark", "createdBy"]
+    // };
+
+  const transactions = [
+	// 2 purchases
+	{
+		id: 1,
+		utorid: 'superusr',
+		type: 'purchase',
+		remark: 'groceries',
+		createdBy: 'john123',
+		amount: 400,
+		spent: 100,
+	},
+
+	{
+		id: 2,
+		utorid: 'tester1',
+		type: 'purchase',
+		remark: 'transit',
+		createdBy: 'superusr',
+		amount: 200,
+		spent: 50,
+	},
+
+	// 4 transfers
+	{
+		id: 3,
+		utorid: 'tester1',
+		type: 'transfer',
+		remark: 'poker night',
+		createdBy: 'tester1',
+		amount: -10,
+		sender: 'tester1',
+		recipient: 'superusr',
+		relatedId: 4
+	},
+
+	{
+		id: 4,
+		utorid: 'superusr',
+		type: 'transfer',
+		remark: 'poker night',
+		createdBy: 'tester1',
+		amount: 10,
+		sender: 'tester1',
+		recipient: 'superusr',
+		relatedId: 3
+	},
+
+	{
+		id: 5,
+		utorid: 'superusr',
+		type: 'transfer',
+		remark: 'happy birthday',
+		createdBy: 'superusr',
+		amount: -100,
+		sender: 'superusr',
+		recipient: 'tester1',
+		relatedId: 6
+	},
+
+	{
+		id: 6,
+		utorid: 'tester1',
+		type: 'transfer',
+		remark: 'happy birthday',
+		createdBy: 'superusr',
+		amount: 100,
+		sender: 'superusr',
+		recipient: 'tester1',
+		relatedId: 5
+	},
+
+	// 2 redemptions
+	{
+		id: 7,
+		utorid: 'tester1',
+		type: 'redemption',
+		remark: 'bubble tea',
+		createdBy: 'tester1',
+		amount: -20,
+	},
+
+	{
+		id: 8,
+		utorid: 'superusr',
+		type: 'redemption',
+		remark: 'a processed redemption',
+		createdBy: 'superusr',
+		relatedId: 1,
+		amount: -15,
+	},
+
+	// 2 adjustments
+	{
+		id: 9,
+		utorid: 'superusr',
+		type: 'adjustment',
+		remark: 'apply promotion 1',
+		createdBy: 'superusr',
+		relatedId: 1,
+		amount: 50,
+	},
+
+	{
+		id: 10,
+		utorid: 'superusr',
+		type: 'adjustment',
+		remark: 'inflation',
+		createdBy: 'superusr',
+		relatedId: 7,
+		amount: -50,
+	}
+
+  ]
+  for (const t of transactions) {
+	await prisma.transaction.upsert({
+	  	where: { id: t.id },
+	  	update: {
+			utorid: t.utorid,
+			type: t.type,
+			remark: t.remark,
+			createdBy: t.createdBy,
+			amount: t.amount,
+			spent: t.spent,
+	  	},	
+	  	create: t,
+	});
+  }
+
 }
 
 main()
