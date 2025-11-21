@@ -5,14 +5,13 @@ import colors from '../constants/colors';
 import { useState } from 'react';
 import { PrimaryButton } from './Button';
 
-export default function TransactionFilter() {
+export default function TransactionFilter({setFilter, showAll}) {
 
-    const showAll = true;
     const clearance = showAll ? '' : styles.hidden;
 
     const [ type, setType ] = useState('');
     const [ amount, setAmount ] =useState('');
-    const [ operator, setOperator ] = useState('gt');
+    const [ operator, setOperator ] = useState('gte');
     const [ promotionID, setPromotionID] = useState('');
     const [ relatedID, setRelatedID ] = useState('');
     const [ owner, setOwner ] = useState('');
@@ -49,14 +48,14 @@ export default function TransactionFilter() {
 
     const operatorOptions = [
         {
-          text: '>',
+          text: '>=',
         //   backgroundColour: colors.primaryOrange,
-          action: () => setOperator('gt'),
+          action: () => setOperator('gte'),
         },
         {
-          text: '<',
+          text: '<=',
         //   backgroundColour: colors.primaryYellow,
-          action: () => setOperator('lt'),
+          action: () => setOperator('lte'),
         },
     ];
 
@@ -76,7 +75,20 @@ export default function TransactionFilter() {
           backgroundColour: colors.primaryGreen,
           action: () => setSuspicious(false),
         },
-    ];    
+    ];
+    
+    const applyFilter = () => {
+      setFilter({
+        type: type,
+        amount: amount, 
+        operator: operator, 
+        promotionId: promotionID,
+        relatedId: relatedID,
+        name: owner, 
+        createdBy: creator, 
+        suspicious: suspicious
+      });
+    };
 
     return (
         <div className={styles.container}>
@@ -89,7 +101,7 @@ export default function TransactionFilter() {
               <TagSelect 
                 type="rounded"
                 backgroundColour={colors.primaryBrown}
-                defaultText={'>'}
+                defaultText={'>='}
                 options={operatorOptions}
               />
               <div className={clearance}>
@@ -117,7 +129,7 @@ export default function TransactionFilter() {
             <label className={styles.label + ' ' + clearance}>creator: </label>
             <input className={styles.name + ' ' + clearance} type='text' value={creator}
                 onChange={e=>(setCreator(e.target.value))}></input>
-            <PrimaryButton text="Filter" onClick={()=> console.log(amount)}/>
+            <PrimaryButton text="Filter" onClick={applyFilter}/>
         </div>
     );
 }

@@ -6,24 +6,24 @@ import styles from './TransactionCard.module.css'
 import { useTransaction } from "@/context/TransactionContext";
 import { useNavigation } from "@/context/NavigationContext";
 
-    export default function TransactionCard({
-      id,
-      utorid,
-      type,
-      amount,
-      remark,
-      createdBy,
-      // type specific fields
-      promotionIds,
-      spent,
-      redeemed,
-      relatedId, // redemption or adjustment
-      eventId,
-      sender,
-      recipient,
-      suspicious,
-      hideAdjust, // determine whether adjust button is shown
-    }) {
+    export default function TransactionCard({props}) {
+      const { id,
+        utorid,
+        type,
+        amount,
+        remark,
+        createdBy,
+        // type specific fields
+        promotionIds,
+        spent,
+        redeemed,
+        relatedId, // redemption or adjustment
+        eventId,
+        sender,
+        recipient,
+        suspicious,
+        hideAdjust // determine whether adjust button is shown
+      } = props; 
 
       const { setTransactionID } = useTransaction();
       const { navStack, setNavStack } = useNavigation();
