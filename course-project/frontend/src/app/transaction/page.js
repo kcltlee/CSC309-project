@@ -1,53 +1,123 @@
 'use client';
+import { useState, useEffect } from 'react';
 import TransactionCard from '../components/TransactionCard';
 import TransactionFilter from '../components/TransactionFilter';
+import styles from '@/app/transaction/transaction.module.css';
+
 
 export default function TransactionsListPage() {
 
-  // TODO: call api and implment infinite scroll
+  const PAGELIMIT = 5;
+  const [ transactions, setTransactions ] = useState([]);
+  const [ filter, setFilter ] = useState({});
+  const [ showAll, setShowAll ] = useState(false);
+  const [ page, setPage ] = useState(1);
+  const [ end, setEnd ] = useState(false);
+  const [ loading, setLoading ] = useState(false);
+  const backendURL = 'http://localhost:4000';
+
+  // create a context for filters, provide it transactionFilter to set filters
+
+  const loadRegular = async () => {
+    const url = new URL(backendURL + '/users/me/transactions');
+
+    const allowedKeys = ['type', 'relatedId', 'promotionId', 'amount', 'operator', 'pagination', 'limit'];
+    const relevantFilters = Object.fromEntries(Object.entries(filter).filter(([k, v]) => {
+      return allowedKeys.includes(k) && v !== '';
+    }));
+
+    url.search = new URLSearchParams(relevantFilters).toString();
+
+    fetch(url, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
+    })
+    .then(res => {return res.json()})
+    .then(data => { loadData(data)});
+  }
+
+  const loadPrivileged = async () => {
+    const url = new URL(backendURL + '/transactions');
+  
+    const allowedKeys = ['utorid', 'createdBy', 'suspicious',
+            'promotionId', 'type', 'relatedId', 'amount', 'operator', 'page', 'limit'];
+    const relevantFilters = Object.fromEntries(Object.entries(filter).filter(([k, v]) => {
+      return allowedKeys.includes(k) && v !== '';
+    }));
+
+    url.search = new URLSearchParams(relevantFilters).toString();
+
+    fetch(url, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
+    })
+    .then(res => {return res.json()})
+    .then(data => { loadData(data)});
+  }
+
+  const loadData = (data) => {
+    if (!data) {
+      console.log('no data');
+      return;
+    }
+    console.log(page);
+    setLoading(true);
+    const start = page === 1;
+    if (start) {
+        setTransactions(data.results);
+    }
+    else {
+        setTransactions(prev => [...prev, ...data.results]);
+    }
+
+    // check if end of transactions reached
+    if (!data || data.results.length < PAGELIMIT) {
+      setEnd(true);
+    }
+    setLoading(false);
+
+  }
+
+  const load = (specificPage) => {
+    filter.pagination = specificPage === 0 ? 1 : page;
+    filter.limit = PAGELIMIT;
+
+    let data;
+    if (showAll) {
+      data = loadPrivileged();
+    }
+    else {
+      data = loadRegular();
+    }
+    setPage(prev => prev + 1);
+  };
+
+
+  // apply filter
+  useEffect(()=>{
+    setTransactions([]);
+    setPage(0);
+    load(1);
+    setEnd(false);
+
+  }, [filter]);
+
+  const handleScroll = (e) => {
+    const bottomReached = e.target.scrollHeight - e.target.scrollTop > e.target.clientHeight;
+    if (bottomReached && !loading && !end) { 
+      load();
+    }
+  }
+
   return (
     <div className='main-container'>
       <h1>My Transactions</h1>
-        <TransactionFilter/>
-        <div className='infinite-scroll'>
-          <TransactionCard id={1} remark="good deal" amount={20} type='purchase' promotionIds={1} spent={5} />
-          <TransactionCard id={2} type='transfer' remark="pizza" amount={-15} utorid={'abcd123'} sender={'abcd123'} recipient={'plmn0987'} />
-          <TransactionCard id={3} type='redemption' suspicious={true} amount={-20} redeemed={true}/>
-          <TransactionCard id={4} type='adjustment' amount={5} relatedId={2}/>
-          <TransactionCard id ={5} type='event' amount={10} relatedId={3}/>
-          <TransactionCard id={1} remark="good deal" createdBy='joe999' amount={20} type='purchase' promotionIds={1} spent={5} />
-          <TransactionCard id={2} type='transfer' remark="pizza" amount={-15} utorid={'abcd123'} sender={'abcd123'} recipient={'plmn0987'} />
-          <TransactionCard id={3} type='redemption' suspicious={true} amount={-20} redeemed={true}/>
-          <TransactionCard id={4} type='adjustment' amount={5} relatedId={2}/>
-          <TransactionCard id ={5} type='event' amount={10} relatedId={3}/>
+        <TransactionFilter setFilter={setFilter} setShowAll={setShowAll}/>
+        <div onScroll={handleScroll} className={styles.infiniteScroll}>
+          {transactions.map((t, index) => {
+            return <TransactionCard key={index} props={t}/>
+          })}
           <p>No more transactions.</p>
         </div>
-        
     </div>
   );
+
 }
-// list all of the current user's transactions
-
-// for managers, use tagselect to toggle between all transactions vs their transactions
-
-
-
-    // const typeFields = {
-    //     purchase: ["id", "utorid", "type", "remark", "createdBy", "amount", "spent", "promotionIds", "suspicious"],
-    //     transfer: ["id", "type", "remark", "createdBy", "sender", "recipient", "amount"],
-    //     redemption: ["id", "utorid", "type", "remark", "createdBy", "amount", "promotionIds", "relatedId", "redeemed"],
-    //     adjustment: ["id", "utorid", "amount", "type", "relatedId", "promotionIds", "suspicious", "remark", "createdBy"],
-    //     event: ["id", "recipient", "amount", "type", "eventId", "remark", "createdBy"]
-    // };
-
-  // for managers, just add a footer div with utorid | ... | Suspicious (if true)
-  // only managers can see suspicious, and utorids who own transaction
-
-  // user should see:
-  // id               relatedValue (spent, utorid of other user, redeemed, transaction id, event)
-  // type     amount
-  // promotions
-  //remark
-
-  // managers only
-  // utorid           Suspicious
