@@ -17,17 +17,22 @@ export default function NavBar() {
   const [userData, setUserData] = useState(null);
   const navRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { logout } = useAuth();
+  const { logout, currentInterface } = useAuth();
   const navItems = [
-    // { label: 'Login', path: '/login'},
-    { label: 'Events', path: '/event' },
-    // { label: 'Promotion', path: '/promotion' },
+    { label: 'Dashboard', path: '/user' },
     { label: 'QR', path: '/user/qr' },
+    { label: 'Events', path: '/event' },
   ];
-  const specialItems = [
-    { label: 'Register User', path: '/user/register' },
-    { label: 'View Users', path: '/user/view' }
-  ];
+  if (!PromotionMenu()) { // only 1 option in dropdown
+    navItems.push({ label: 'Promotions', path: '/promotion' });
+  }
+  const specialItems = [];
+  if (currentInterface === "cashier" || currentInterface === "manager" || currentInterface === "superuser" ) {
+    specialItems.push({ label: 'Register User', path: '/user/register' });
+  }
+  if (currentInterface === "manager" || currentInterface === "superuser" ) {
+    specialItems.push({ label: 'View Users', path: '/user/view' });
+  }
 
   // Helper to normalize paths for comparison (handle trailing slashes)
   const normalizePath = (path) => path.endsWith('/') ? path.slice(0, -1) : path;
@@ -104,7 +109,7 @@ export default function NavBar() {
           <TransactionMenu/>
 
           {/* Divider */}
-          <div className={styles.divider} />
+          {specialItems.length > 0 && <div className={styles.divider} />}
 
           {/* role-dependent actions */}
           {specialItems.map((item) => (
@@ -153,7 +158,6 @@ export default function NavBar() {
               <button
                 className={`${styles.dropdownItem} ${styles.logoutButton}`}
                 onClick={() => {
-                //   clearAuth();
                   setIsUserMenuOpen(false);
                   logout();
                 }}

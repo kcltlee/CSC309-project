@@ -245,3 +245,56 @@
     padding-left: 0;
   }
 }
+
+/* switch interface */
+.switchCard {
+  padding: 16px;
+}
+
+.switchFormGrid {
+  gap: 40px;
+  margin-top: 20px;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+}
+
+.metaLabel {
+  font-size: 0.92rem;
+}
+
+.metaValue {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: capitalize;
+}
+
+.chooseLabel {
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+/* .interfaceDropdown {
+
+} */
+
+.interfaceChooser {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.actionsRow {
+  /* display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: auto; */
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  justify-self: end;
+  align-self: end; 
+}

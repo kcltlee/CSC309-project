@@ -213,13 +213,14 @@ router.route('/me')
         res.json(getUserInfo(updated_user));
     })
     .get(jwtAuth, async (req, res) => {
-        const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { promotions: true} });
+        const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { promotions: true, organizedEvents: true } });
         if(!user) {
             return res.status(404).json({ error: "User not found" }); // should not be possible
         }
 
         const userInfo = getUserInfo(user);
         userInfo.password = user.password;
+        userInfo.organizedEvents = user.organizedEvents;
 
         res.json(userInfo);
     });

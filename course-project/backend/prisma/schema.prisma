@@ -42,7 +42,7 @@ model User {
   expiresAt   DateTime?
   resetToken  String?
   lastLogin   DateTime?
-  avatarUrl   String?        @default("https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-symbol-image-default-avatar-profile-icon-vector-social-media-user-symbol-209498286.jpg")
+  avatarUrl   String        @default("https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-symbol-image-default-avatar-profile-icon-vector-social-media-user-symbol-209498286.jpg")
 
   points            Int             @default(0)
   transactions      Transaction[]   @relation("UserTransactions")

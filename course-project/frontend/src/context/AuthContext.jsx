@@ -2,7 +2,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const AuthContext = createContext({ user: null, token: null, login: async () => {}, logout: () => {}, initializing: true });
+const AuthContext = createContext({ user: null,
+  token: null,
+  login: async () => {},
+  logout: () => {},
+  initializing: true,
+  currentInterface: null,
+  setCurrentInterface: () => {}});
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
@@ -11,12 +17,16 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
   const router = useRouter();
 
+  const interfaces = ["regular", "cashier", "manager", "superuser", "organizer"]
+  const [currentInterface, setCurrentInterface] = useState(null);
+
   useEffect(() => {
     setInitializing(true);
     const token = localStorage.getItem("token");
     
     if (!token) { 
         setUser(null);
+        setCurrentInterface(null);
         setInitializing(false);
     } else {
         setToken(token);
@@ -26,7 +36,10 @@ export function AuthProvider({ children }) {
             headers: { 'Authorization': `Bearer ${token}` },
         })
         .then((data) => data.json())
-        .then((data) => setUser(data))
+        .then((data) => {
+            setUser(data);
+            setCurrentInterface(currentInterface || data.role);
+        })
         .finally(() => setInitializing(false));
     }
   }, [])
@@ -52,7 +65,10 @@ export function AuthProvider({ children }) {
       headers: { 'Authorization': `Bearer ${data.token}` }
     })
     .then((data) => data.json())
-    .then(data => setUser(data));
+    .then(userData => {
+      setUser(userData);
+      setCurrentInterface(currentInterface || userData.role);
+    });
 
     router.push("/user"); // TODO: change to home page
   };
@@ -63,11 +79,15 @@ export function AuthProvider({ children }) {
       headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
     })
     .then((data) => data.json())
-    .then(data => setUser(data));
+    .then(data => {
+       setUser(data);
+       setCurrentInterface(currentInterface || data.role);
+    });
   }
 
   const logout = () => {
       localStorage.removeItem("token");
+      localStorage.removeItem("interface");
       setToken(null);
       setUser(null);
 
@@ -75,7 +95,16 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loadUser, token, login, logout, initializing }}>
+    <AuthContext.Provider value={{
+      user,
+      loadUser,
+      token,
+      login,
+      logout,
+      initializing,
+      currentInterface,
+      setCurrentInterface
+    }}>
       {children}
     </AuthContext.Provider>
   );

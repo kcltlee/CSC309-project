@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import EditProfileForm from './EditProfileForm';
 import ChangePasswordForm from './ChangePasswordForm';
+import SwitchInterfaceForm from './SwitchInterfaceForm';
 import styles from './settings.module.css';
 import colors from '../constants/colors';
 
@@ -42,7 +43,7 @@ export default function SettingsPanel() {
           <section className={styles.main}>
             {active === 'profile' && <EditProfileForm />}
             {active === 'password' && <ChangePasswordForm />}
-            {active === 'interface' && <div>TODO: implement</div>} 
+            {active === 'interface' && <SwitchInterfaceForm />} 
           </section>
         </div>
       </div>

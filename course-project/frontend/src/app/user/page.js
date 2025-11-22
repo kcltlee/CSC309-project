@@ -5,13 +5,18 @@ import CashierDashboardPage from "./cashier/page";
 import ManagerDashboardPage from "./manager/page";
 
 export default function UserDashboardPage() {
-  const { user } = useAuth();
+  const { user, currentInterface } = useAuth();
+  let dashboardType = (currentInterface || user?.role);
+
+  if (dashboardType === "organizer") {
+    dashboardType = user?.role;
+  }
 
   if (!user) return <p>Loading...</p>;
 
-  if (user.role === "regular") return <RegularUserPage />;
-  if (user.role === "cashier") return <CashierDashboardPage />;
-  if (user.role === "manager" || user.role === "superuser") return <ManagerDashboardPage />;
+  if (dashboardType === "regular") return <RegularUserPage />;
+  if (dashboardType === "cashier") return <CashierDashboardPage />;
+  if (dashboardType === "manager" || dashboardType === "superuser") return <ManagerDashboardPage />;
 
   return <p>Unknown role</p>;
 }
