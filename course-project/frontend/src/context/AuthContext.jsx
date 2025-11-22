@@ -57,6 +57,15 @@ export function AuthProvider({ children }) {
     router.push("/user"); // TODO: change to home page
   };
 
+  const loadUser = () => {
+     fetch('/users/me', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
+    })
+    .then((data) => data.json())
+    .then(data => setUser(data));
+  }
+
   const logout = () => {
       localStorage.removeItem("token");
       setToken(null);
@@ -66,7 +75,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, initializing }}>
+    <AuthContext.Provider value={{ user, loadUser, token, login, logout, initializing }}>
       {children}
     </AuthContext.Provider>
   );
