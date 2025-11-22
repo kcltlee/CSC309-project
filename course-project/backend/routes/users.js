@@ -28,6 +28,7 @@ function getUserInfo(user) {
         createdAt: user.createdAt,
         lastLogin: user.lastLogin,
         verified: user.verified,
+        suspicious: user.suspicious,
         avatarUrl: user.avatarUrl,
         promotions: user.promotions
     }
@@ -280,7 +281,7 @@ router.route('/:userId')
     })
     .patch(jwtAuth, async (req, res) => {
         if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
-            return res.status(403).json({ error: "not permitted" });
+            return res.status(403).json({ error: "Must be manager or superuser to perform this action" });
         }
         
         const id = Number(req.params.userId);
@@ -310,14 +311,14 @@ router.route('/:userId')
 
         if (email !== undefined && email !== null) {
             if (typeof email !== 'string' || !/^[A-Za-z0-9._%+-]+@(?:mail\.)?utoronto\.ca$/i.test(email)) {
-                return res.status(400).json({ error: "invalid email" });
+                return res.status(400).json({ error: "Invalid UofT email" });
             }
             update_data.email = email;
         }
 
         if (verified !== undefined && verified !== null) {
             if (typeof verified !== 'boolean' || verified !== true) {
-                return res.status(400).json({ error: "verified must be true" });
+                return res.status(400).json({ error: "Cannot unverify user" });
             }
             update_data.verified = verified;
         }
@@ -328,10 +329,10 @@ router.route('/:userId')
                     return res.status(400).json({ error: "invalid role" });
                 }
                 if (req.user.role === 'manager' && (role === 'manager' || role === 'superuser')) {
-                    return res.status(403).json({ error: "not permitted" });
+                    return res.status(403).json({ error: "You are only permitted to set the role to regular or cashier" });
                 }
                 if (role === 'cashier' && user.suspicious === true) {
-                    return res.status(400).json({ error: "user cannot be suspicious" });
+                    return res.status(400).json({ error: "Cannot promote suspicious users to be cashiers" });
                 }
                 update_data.role = role;
             }  else {

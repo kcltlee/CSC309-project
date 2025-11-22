@@ -19,6 +19,18 @@ export default function UserView() {
     const roles = ['regular', 'cashier', 'manager', 'superuser'];
     const BACKEND_BASE = process.env.NEXT_PUBLIC_API_URL; // idk why this is needed here
 
+    // new state for expansion and edit form
+    const [expandedUserId, setExpandedUserId] = useState(null);
+    const [editForm, setEditForm] = useState({
+        email: '',
+        verified: null,
+        suspicious: null,
+        role: '',
+        message: '',
+        messageType: '' // 'success' or 'error'
+    });
+    const [initialEdit, setInitialEdit] = useState(null); // track original values to know if form is dirty
+
     const fetchUsers = async (p = 1) => {
         if (loading) { // prevent fetching twice
             return;
@@ -62,6 +74,87 @@ export default function UserView() {
         loading = false;
     };
 
+    // helper to open the editor for a user and prefill form
+    const openEditor = (u) => {
+        // toggle editor
+        if (expandedUserId === u.id) {
+            setExpandedUserId(null);
+            setInitialEdit(null);
+            setEditForm(prev => ({ ...prev, message: '', messageType: '' }));
+            return;
+        }
+
+        const initial = {
+            email: u.email ?? '',
+            verified: u.verified === true ? true : false,
+            suspicious: u.suspicious === true ? true : false,
+            role: u.role ?? 'regular'
+        };
+
+        setExpandedUserId(u.id);
+        setInitialEdit(initial);
+        setEditForm({ ...initial, message: '', messageType: '' });
+    };
+
+    const closeEditor = () => {
+        setExpandedUserId(null);
+        setInitialEdit(null);
+        setEditForm(prev => ({ ...prev, message: '', messageType: '' }));
+    };
+
+    const handleEditChange = (field, value) => {
+        setEditForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSubmit = async (userId) => {
+        // build payload of only modified fields compared to initialEdit
+        const payload = {};
+        if (initialEdit) {
+            if (editForm.email !== initialEdit.email) payload.email = editForm.email;
+            if (editForm.verified !== initialEdit.verified) payload.verified = editForm.verified;
+            if (editForm.suspicious !== initialEdit.suspicious) payload.suspicious = editForm.suspicious;
+            if (editForm.role !== initialEdit.role) payload.role = editForm.role;
+        } else {
+            // fallback: send what we have (shouldn't usually happen because submit is disabled when not dirty)
+            if (editForm.email !== undefined) payload.email = editForm.email;
+            if (editForm.verified !== undefined) payload.verified = editForm.verified;
+            if (editForm.suspicious !== undefined) payload.suspicious = editForm.suspicious;
+            if (editForm.role) payload.role = editForm.role;
+        }
+
+        // nothing changed -> no request
+        if (Object.keys(payload).length === 0) {
+            setEditForm(prev => ({ ...prev, message: 'No changes to save', messageType: 'error' }));
+            return;
+        }
+
+        try {
+            const res = await fetch(`/users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                const msg = data?.error || data?.message || `Error ${res.status}`;
+                setEditForm(prev => ({ ...prev, message: msg, messageType: 'error' }));
+                return;
+            }
+
+            // success: update local users state to reflect only changed fields
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...payload } : u));
+
+            setEditForm(prev => ({ ...prev, message: 'Updated successfully', messageType: 'success' }));
+            // optionally close editor after short delay
+            setTimeout(() => closeEditor(), 900);
+        } catch (err) {
+            setEditForm(prev => ({ ...prev, message: err.message || 'Network error', messageType: 'error' }));
+        }
+    };
+
     // fetch users everytime filter changes
     useEffect(() => {
         setUsers([]);
@@ -86,6 +179,16 @@ export default function UserView() {
         setRoleFilter(prev => (prev === r ? null : r));
         console.log(roleFilter)
     };
+
+    // compute whether any editable field changed
+    const isDirty = initialEdit
+        ? (
+            (editForm.email !== initialEdit.email) ||
+            (editForm.verified !== initialEdit.verified) ||
+            (editForm.suspicious !== initialEdit.suspicious) ||
+            (editForm.role !== initialEdit.role)
+          )
+        : false;
 
     return (
         <div className={styles.pageContainer}>
@@ -197,11 +300,101 @@ export default function UserView() {
                                                 </span>
                                             </div>
                                         </div>
+
+                                        {/* expanded editor */}
+                                        {expandedUserId === u.id && (
+                                            <div className={styles.expandedEditor}>
+                                                <div className={styles.expandedMeta}>
+                                                    <div>UTORid: <strong>{u.utorid}</strong></div>
+                                                    <div>Created: <strong>{u.createdAt ? new Date(u.createdAt).toLocaleString() : '—'}</strong></div>
+                                                    <div>Last login: <strong>{u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—'}</strong></div>
+                                                </div>
+
+                                                <div className={styles.editorGrid}>
+                                                    <label className={styles.editorLabel}>
+                                                        <span className={styles.editorLabelTitle}>Email</span>
+                                                        <input
+                                                            className={styles.input}
+                                                            value={editForm.email}
+                                                            onChange={(e) => handleEditChange('email', e.target.value)}
+                                                        />
+                                                    </label>
+
+                                                    <div className={styles.editorLabel}>
+                                                        <span className={styles.editorLabelTitle}>Verified</span>
+                                                        <div className={styles.smallButtonsRow}>
+                                                            <Button
+                                                                variant="secondary"
+                                                                className={`${styles.roleFilterBtn} ${editForm.verified === true ? styles.roleFilterActive : ''}`}
+                                                                onClick={() => handleEditChange('verified', true)}
+                                                            >
+                                                                Verified
+                                                            </Button>
+                                                            <Button
+                                                                variant="secondary"
+                                                                className={`${styles.roleFilterBtn} ${editForm.verified === false ? styles.roleFilterActive : ''}`}
+                                                                onClick={() => handleEditChange('verified', false)}
+                                                            >
+                                                                Not verified
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={styles.editorLabel}>
+                                                        <span className={styles.editorLabelTitle}>Role</span>
+                                                        <div className={styles.roleButtonGroup}>
+                                                            {roles.map(r => (
+                                                                <Button
+                                                                    key={r}
+                                                                    variant="secondary"
+                                                                    className={`${styles.roleFilterBtn} ${editForm.role === r ? styles.roleFilterActive : ''}`}
+                                                                    onClick={() => handleEditChange('role', r)}
+                                                                >
+                                                                    {r}
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={styles.editorLabel}>
+                                                        <span className={styles.editorLabelTitle}>Suspicious</span>
+                                                        <div className={styles.smallButtonsRow}>
+                                                            <Button
+                                                                variant="secondary"
+                                                                className={`${styles.roleFilterBtn} ${editForm.suspicious === true ? styles.roleFilterActive : ''}`}
+                                                                onClick={() => handleEditChange('suspicious', true)}
+                                                            >
+                                                                Suspicious
+                                                            </Button>
+                                                            <Button
+                                                                variant="secondary"
+                                                                className={`${styles.roleFilterBtn} ${editForm.suspicious === false ? styles.roleFilterActive : ''}`}
+                                                                onClick={() => handleEditChange('suspicious', false)}
+                                                            >
+                                                                Not suspicious
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* message */}
+                                                {editForm.message && (
+                                                    <div className={editForm.messageType === 'success' ? `${styles.success} ${styles.editorMessage}` : `${styles.error} ${styles.editorMessage}`}>
+                                                        {editForm.message}
+                                                    </div>
+                                                )}
+
+                                                <div className={styles.editorActions}>
+                                                    <Button variant="secondary" onClick={closeEditor}>Cancel</Button>
+                                                    <Button variant="primary" disabled={!isDirty} onClick={() => handleSubmit(u.id)}>Submit</Button>
+                                                </div>
+                                            </div>
+                                         )}
                                     </div>
 
                                     <div className={styles.userActions}>
-                                        <Button type="button" variant="secondary" className={styles.showMoreBtn} onClick={() => { /* TODO */ }}>
-                                            Edit User Info
+                                        <Button type="button" variant="secondary" className={styles.showMoreBtn} onClick={() => openEditor(u)}>
+                                            {expandedUserId === u.id ? 'Close' : 'Edit User Info'}
                                         </Button>
                                     </div>
                                 </div>
