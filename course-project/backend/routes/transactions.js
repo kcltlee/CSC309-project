@@ -148,7 +148,7 @@ router.route('/')
             return res.status(403).json({ error: "not permitted" });
         }
 
-        const filters = parseQuery(req.query, ['utorid', 'createdBy', 'suspicious',
+        const filters = parseQuery(req.query, ['id', 'utorid', 'createdBy', 'suspicious',
             'promotionId', 'type', 'relatedId', 'amount', 'operator', 'page', 'limit']);
         if (filters === false) {
             return res.status(400).json({ error: "invalid filters" });
@@ -159,13 +159,16 @@ router.route('/')
         if (filters.relatedId !== undefined && (filters.type == undefined || filters.type === "purchase")) {
             return res.status(400).json({ error: "relatedId must be used with appropriate type" });
         }
-        if ((filters.amount === undefined) !== (filters.operator === undefined)) {
+        if (!(filters.amount === undefined) && (filters.operator === undefined)) {
             return res.status(400).json({ error: "amount must be used with operator" });
         } else if (filters.operator !== undefined && filters.operator !== "lte" && filters.operator !== "gte"){
             return res.status(400).json({ error: "invalid operator" });
         } else if (filters.amount !== undefined && filters.operator !== undefined) {
             const { operator, amount } = filters;
             filters.amount = { [operator]: amount };
+            delete filters.operator;
+        }
+        else if (filters.operator){
             delete filters.operator;
         }
 

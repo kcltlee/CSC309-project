@@ -31,7 +31,8 @@ const types = {
     relatedId: "number",
     createdBy: "string",
     operator: "string",
-    processed: "boolean"
+    processed: "boolean",
+    id: "number"
 }
 
 function typeCheck(payload, expectedLength) {

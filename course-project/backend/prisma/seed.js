@@ -26,6 +26,7 @@ async function main() {
 
 	// managers (2)
 	{
+		id: 2, 
 		utorid: 'john123',
 		name: 'John Manager',
 		password: 'Abc123$',
@@ -35,6 +36,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 3,
 		utorid: 'alice123',
 		name: 'Anna Manager',
 		password: 'pa$$Wor1',
@@ -46,6 +48,7 @@ async function main() {
 
 	// cashiers (3)
 	{
+		id: 4, 
 		utorid: 'cashier1',
 		name: 'Cash One',
 		password: 'Cash!1Aq',
@@ -55,6 +58,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 5,
 		utorid: 'suscash',
 		name: 'Suspicious Cashier',
 		password: 'Cash!2Bq',
@@ -65,6 +69,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 6,
 		utorid: 'cashier3',
 		name: 'Cash Three',
 		password: 'Cash!3Cq',
@@ -76,6 +81,7 @@ async function main() {
 
 	// regular users (4)
 	{
+		id: 7,
 		utorid: 'student1',
 		name: 'Student One',
 		password: 'Stud!11a',
@@ -85,6 +91,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 8,
 		utorid: 'reguser',
 		name: 'Student Two',
 		password: 'Stud!22b',
@@ -94,6 +101,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 9,
 		utorid: 'userabc1',
 		name: 'User ABC',
 		password: 'User!!11',
@@ -103,6 +111,7 @@ async function main() {
 		activated: true,
 	},
 	{
+		id: 10,
 		utorid: 'tester1',
 		name: 'Tester One',
 		password: 'Test!!11',
@@ -138,7 +147,7 @@ async function main() {
     // };
 
   const transactions = [
-	// 2 purchases
+	// 6 purchases
 	{
 		id: 1,
 		utorid: 'superusr',
@@ -159,7 +168,47 @@ async function main() {
 		spent: 50,
 	},
 
-	// 4 transfers
+	{
+		id: 11,
+		utorid: 'suscash',
+		type: 'purchase',
+		remark: 'doing something suspicious',
+		createdBy: 'suscash',
+		amount: 1000,
+		spent: 250,
+	},
+
+	{
+		id: 12,
+		utorid: 'userabc1',
+		type: 'purchase',
+		remark: 'gift',
+		createdBy: 'suscash',
+		amount: 120,
+		spent: 30,
+	},
+
+	{
+		id: 13,
+		utorid: 'student1',
+		type: 'purchase',
+		remark: 'school supplies',
+		createdBy: 'alice123',
+		amount: 40,
+		spent: 10,
+	},
+
+	{
+		id: 14,
+		utorid: 'reguser',
+		type: 'purchase',
+		remark: 'regular purchase',
+		createdBy: 'cashier1',
+		amount: 4,
+		spent: 1,
+	},
+
+	// 6 transfers
 	{
 		id: 3,
 		utorid: 'tester1',
@@ -169,7 +218,7 @@ async function main() {
 		amount: -10,
 		sender: 'tester1',
 		recipient: 'superusr',
-		relatedId: 4
+		relatedId: 1
 	},
 
 	{
@@ -181,7 +230,7 @@ async function main() {
 		amount: 10,
 		sender: 'tester1',
 		recipient: 'superusr',
-		relatedId: 3
+		relatedId: 10
 	},
 
 	{
@@ -193,7 +242,7 @@ async function main() {
 		amount: -100,
 		sender: 'superusr',
 		recipient: 'tester1',
-		relatedId: 6
+		relatedId: 10
 	},
 
 	{
@@ -205,10 +254,36 @@ async function main() {
 		amount: 100,
 		sender: 'superusr',
 		recipient: 'tester1',
-		relatedId: 5
+		relatedId: 1
 	},
 
-	// 2 redemptions
+	{
+		id: 15,
+		utorid: 'userabc1',
+		type: 'transfer',
+		remark: 'good job',
+		createdBy: 'userabc1',
+		amount: -15,
+		sender: 'userabc1',
+		recipient: 'student1',
+		relatedId: 7
+
+	},
+
+	{
+		id: 16,
+		utorid: 'student1',
+		type: 'transfer',
+		remark: 'good job',
+		createdBy: 'userabc1',
+		amount: 15,
+		sender: 'userabc1',
+		recipient: 'student1',
+		relatedId: 9
+	
+	},
+
+	// 6 redemptions
 	{
 		id: 7,
 		utorid: 'tester1',
@@ -222,10 +297,51 @@ async function main() {
 		id: 8,
 		utorid: 'superusr',
 		type: 'redemption',
+		processed: true,
 		remark: 'a processed redemption',
 		createdBy: 'superusr',
 		relatedId: 1,
 		amount: -15,
+	},
+
+	{
+		id: 17,
+		utorid: 'userabc1',
+		type: 'redemption',
+		remark: '',
+		createdBy: 'suscash',
+		relatedId: 6,
+		amount: -5,
+	},
+
+	{
+		id: 18,
+		utorid: 'tester1',
+		type: 'redemption',
+		remark: 'chocolate',
+		createdBy: 'tester1',
+		amount: -10,
+	},
+
+	{
+		id: 19,
+		utorid: 'superusr',
+		type: 'redemption',
+		remark: '',
+		createdBy: 'john123',
+		relatedId: 1,
+		amount: -60,
+	},
+
+	{
+		id: 20,
+		utorid: 'reguser',
+		type: 'redemption',
+		remark: 'ice cream',
+		createdBy: 'cashier3',
+		processed: true,
+		relatedId: 6,
+		amount: -2,
 	},
 
 	// 2 adjustments
@@ -241,12 +357,50 @@ async function main() {
 
 	{
 		id: 10,
-		utorid: 'superusr',
+		utorid: 'tester1',
 		type: 'adjustment',
 		remark: 'inflation',
 		createdBy: 'superusr',
 		relatedId: 7,
 		amount: -50,
+	},
+	{
+		id: 21,
+		utorid: 'userabc1',
+		type: 'adjustment',
+		remark: 'approved',
+		createdBy: 'john123',
+		relatedId: 12,
+		amount: 120,
+	},
+
+	{
+		id: 22,
+		utorid: 'userabc1',
+		type: 'adjustment',
+		remark: 'remove extra points',
+		createdBy: 'alice123',
+		relatedId: 21,
+		amount: -20,
+	},
+	{
+		id: 23,
+		utorid: 'student1',
+		type: 'adjustment',
+		remark: 'reduced price',
+		createdBy: 'alice123',
+		relatedId: 13,
+		amount: 50,
+	},
+
+	{
+		id: 24,
+		utorid: 'reguser',
+		type: 'adjustment',
+		remark: 'refund points',
+		createdBy: 'superusr',
+		relatedId: 20,
+		amount: 2,
 	}
 
   ]
