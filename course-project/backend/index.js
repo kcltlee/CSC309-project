@@ -51,6 +51,11 @@ app.use('/events', eventRoutes);
 const promotionRoutes = require('./routes/promotions'); 
 app.use('/promotions', promotionRoutes);
 
+// FOR TESTING ONLY
+const devTestingRoute = require('./routes/devTesting');
+app.use('/dev-testing', devTestingRoute);
+
+
 // catch any unsupported method on any endpoint
 app.all('*', (_, res) => {
   return res.status(405).json({ error: "Method Not Allowed" });
