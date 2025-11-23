@@ -24,52 +24,59 @@ export default function CreatePromotion() {
         if (!backend) { setError(true); setMessage('Backend URL not configured'); return; }
         setMessage(""); setError(false);
 
+        // Basic required fields
         if (!promotionName.trim()) { setError(true); setMessage('Name required'); return; }
         if (!description.trim()) { setError(true); setMessage('Description required'); return; }
-        if (!startTime || !endTime) { setError(true); setMessage('Start & End time required'); return; }
+        if (!startTime || !endTime) { setError(true); setMessage('Start and end time required'); return; }
 
-        const start = new Date(startTime);
-        const end = new Date(endTime);
+        const startDate = new Date(startTime);
+        const endDate = new Date(endTime);
         const now = new Date();
-        if (isNaN(start) || isNaN(end)) { setError(true); setMessage('Invalid date'); return; }
-        if (start <= now) { setError(true); setMessage('Start must be in future'); return; }
-        if (end <= start) { setError(true); setMessage('End after start required'); return; }
+
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) { setError(true); setMessage('Invalid date/time'); return; }
+        if (startDate <= now) { setError(true); setMessage('Start time must be in the future'); return; }
+        if (endDate <= startDate) { setError(true); setMessage('End time must be after start time'); return; }
+
+        // Numeric validations (only when >0)
+        if (minimumSpend < 0) { setError(true); setMessage('Min spend must be >= 0'); return; }
+        if (rate < 0) { setError(true); setMessage('Rate must be >= 0'); return; }
+        if (!Number.isInteger(points) || points < 0) { setError(true); setMessage('Points must be an integer >= 0'); return; }
 
         const payload = {
             name: promotionName.trim(),
             description: description.trim(),
-            type: type.toLowerCase() === 'one-time' ? 'one-time' : 'automatic',
-            startTime: start.toISOString(),
-            endTime: end.toISOString(),
+            type: type === 'Onetime' ? 'one-time' : 'automatic', // correct mapping per API spec
+            startTime: startDate.toISOString(),
+            endTime: endDate.toISOString(),
         };
-
-        if (minSpending !== '' && Number(minSpending) > 0) payload.minSpending = Number(minSpending);
-        if (rate !== '' && Number(rate) > 0) payload.rate = Number(rate);
-        if (points !== '' && Number(points) >= 0) payload.points = Number(points);
+        if (minimumSpend > 0) payload.minSpending = Number(minimumSpend);
+        if (rate > 0) payload.rate = Number(rate);
+        if (points > 0) payload.points = Number(points);
 
         try {
             setSubmitting(true);
-            const token = localStorage.getItem('token');
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+            if (!token) throw new Error('Not logged in');
+
             const res = await fetch(`${backend}/promotions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             });
-            const body = await res.json().catch(()=>({}));
             if (!res.ok) {
-                console.error('Create error body:', body);
-                setError(true);
-                setMessage(body.error || body.message || `Create failed (${res.status})`);
-                return;
+                const body = await res.json().catch(() => ({}));
+                throw new Error(body.error || `HTTP ${res.status}`);
             }
-            setMessage('Created.');
-            router.push('/promotion'); // reload list
-        } catch (e) {
+            await res.json();
+            setMessage('Create Promotion Successful!');
+            setError(false);
+            setTimeout(() => router.push('/promotion'), 800);
+        } catch (err) {
             setError(true);
-            setMessage(e.message);
+            setMessage(err.message || 'Failed to create promotion');
         } finally {
             setSubmitting(false);
         }
