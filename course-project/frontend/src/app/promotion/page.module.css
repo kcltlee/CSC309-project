@@ -82,6 +82,8 @@
 
 
 
+
+
 /* Form container */
 .form {
     display: flex;
@@ -174,3 +176,30 @@
   margin-bottom: 16px;
 }
 
+
+
+/* filter */
+
+.roleFilterGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.roleFilterBtn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--muted-border);
+  background: var(--card-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+.roleFilterActive {
+  background: rgb(237, 237, 237) !important;
+  /* color: #fff !important; */
+  border-color: rgb(97, 97, 97) !important;
+}
