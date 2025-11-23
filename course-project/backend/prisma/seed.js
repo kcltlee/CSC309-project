@@ -212,6 +212,125 @@ async function main() {
     });
   }
 
+  // Events
+  const events = [
+	// Ended, full event 
+	{
+		id: 1,
+		name: 'Study Group',
+		description: 'Group studying for CSC309 midterm',
+		location: 'Robarts Library',
+		startTime: new Date('2024-12-20T09:00:00.000Z'),
+		endTime: new Date('2024-12-20T21:00:00.000Z'),
+		capacity: 3,
+		pointsRemain: 0,
+		pointsAwarded: 50,
+		published: true,
+		organizers: { connect: [{ id: 3 }] },
+		guests: { connect: [] },  
+		awards: { connect: [] },
+	},
+	// Ended, not full event
+	{
+		id: 2,
+		name: 'Coding Workshop',
+		description: 'Learn coding for beginners.',
+		location: '40 St George St, Toronto, ON M5S 2E4',
+		startTime: new Date('2025-09-10T08:00:00.000Z'),
+		endTime: new Date('2025-10-10T17:00:00.000Z'),
+		capacity: 20,
+		pointsRemain: 0,
+		pointsAwarded: 100,
+		published: true,
+		organizers: { connect: [{ id: 3 }] },
+		guests: { connect: [] },
+		awards: { connect: [] },
+	},
+	// Ended, not full 
+	{
+		id: 3,
+		name: 'Cooking Workshop',
+		description: 'Learn basic cooking.',
+		location: '55 St George St, Toronto, ON M5S 0C9',
+		startTime: new Date('2025-11-10T09:00:00.000Z'),
+		endTime: new Date('2025-11-10T17:00:00.000Z'),
+		capacity: 100,
+		pointsRemain: 500,
+		pointsAwarded: 0,
+		published: true,
+		organizers: { connect: [{ id: 3 }] },
+		guests: { connect: [] },
+		awards: { connect: [] },
+	},
+
+	// Ongoing, full event
+	{
+		id: 4,
+		name: 'Art Workshop',
+		description: 'Learn painting with friends.',
+		location: 'Sidney Smith Hall',
+		startTime: new Date('2025-10-01T18:00:00.000Z'),
+		endTime: new Date('2025-12-01T20:00:00.000Z'),
+		capacity: 3,
+		pointsRemain: 0,
+		pointsAwarded: 20,
+		published: true,
+		organizers: { connect: [{ id: 2 }] },
+		guests: { connect: [] },  
+		awards: { connect: [] },
+	},
+	// Ongoing, not full event 
+	{
+		id: 5,
+		name: 'Music Workshop',
+		description: 'Play instruments with friends. ',
+		location: '80 Queens Pk Cres W, Toronto, ON M5S 2C5',
+		startTime: new Date('2025-12-15T14:00:00.000Z'),
+		endTime: new Date('2025-12-15T17:00:00.000Z'),
+		capacity: 5,
+		pointsRemain: 100,
+		pointsAwarded: 30,
+		published: true,
+		organizers: { connect: [{ id: 2 }] },
+		guests: { connect: [] }, 
+		awards: { connect: [] },
+	},
+	];
+
+	// add events
+	for (const e of events) {
+	  await prisma.event.upsert({
+		where: { id: e.id },
+		update: e,
+		create: e,
+	});
+  }
+
+  // Event Guests
+  const eventGuests = [
+	{ id: 1, userId: 10, eventId: 1, rsvp: true, confirmed: false }, // Study Group
+	{ id: 2, userId: 8, eventId: 1, rsvp: true, confirmed: true },   // Study Group
+	{ id: 3, userId: 9, eventId: 1, rsvp: true, confirmed: true },   // Study Group
+	{ id: 4, userId: 7, eventId: 4, rsvp: true, confirmed: true },   // Art Workshop
+	{ id: 5, userId: 8, eventId: 4, rsvp: true, confirmed: true },   // Art Workshop
+	{ id: 6, userId: 9, eventId: 4, rsvp: true, confirmed: true },   // Art Workshop
+	{ id: 7, userId: 10, eventId: 5, rsvp: true, confirmed: false }, // Music Workshop
+  ];
+
+// Add event guests
+  for (const eg of eventGuests) {
+	await prisma.eventGuest.upsert({
+		where: { id: eg.id },
+		update: {
+		userId: eg.userId,
+		eventId: eg.eventId,
+		rsvp: eg.rsvp,
+		confirmed: eg.confirmed,
+		},
+		create: eg,
+	});
+  }
+
   const transactions = [
 	// 6 purchases
 	{
