@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
     async function loadData() {
       const token = localStorage.getItem("token");
 
-      const events = await fetch(`${backendURL}/events`, {
+      const events = await fetch(`${backendURL}/events?showFull=true`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then(r => r.json());
 
@@ -43,6 +43,7 @@ export default function AdminDashboardPage() {
   const eventStats = {
     total: summary.events.length,
     upcoming: summary.events.filter(e => new Date(e.startTime) > new Date()).length,
+    ongoing: summary.events.filter(e => new Date(e.startTime) <= new Date() && new Date(e.endTime) >= new Date()).length,
     past: summary.events.filter(e => new Date(e.endTime) < new Date()).length
   };
 
@@ -77,6 +78,7 @@ export default function AdminDashboardPage() {
             {c.label === "Total Events" && (
               <>
                 <p>Upcoming: {c.stats.upcoming}</p>
+                <p>Ongoing: {c.stats.ongoing}</p>
                 <p>Past: {c.stats.past}</p>
               </>
             )}
