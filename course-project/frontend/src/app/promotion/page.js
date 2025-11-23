@@ -226,6 +226,7 @@ export default function PromotionsPage() {
                 <div key={p.id} className={styles.resultItem}>
                   <div style={{ marginBottom: 8 }}>
                     <span className={styles.promotionName}>{p.name}</span>
+                    <div style={{ fontSize: 12, color: '#666', marginTop: 6 }}>ID: {p.id}</div>
                     <div><strong>Start:</strong> {p.startTime ? new Date(p.startTime).toLocaleString() : '—'}</div>
                     <div><strong>End:</strong> {p.endTime ? new Date(p.endTime).toLocaleString() : '—'}</div>
                     {p.description && <div><strong>Description:</strong> {p.description}</div>}
