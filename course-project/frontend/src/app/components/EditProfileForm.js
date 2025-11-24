@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../components/Button';
-import styles from './settings.module.css';
+import styles from '../settings/settings.module.css';
 
 export default function EditProfileForm() {
   const { token } = useAuth();

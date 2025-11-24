@@ -4,7 +4,7 @@ import { useState } from 'react';
 import EditProfileForm from './EditProfileForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import SwitchInterfaceForm from './SwitchInterfaceForm';
-import styles from './settings.module.css';
+import styles from '../settings/settings.module.css';
 import colors from '../constants/colors';
 
 const NAV_ITEMS = [

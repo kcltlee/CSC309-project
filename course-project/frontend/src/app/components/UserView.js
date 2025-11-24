@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../../context/AuthContext.jsx';
-import styles from '../user.module.css';
-import Button from '../../components/Button';
-import PrimaryActionDropDownButton from '../../components/PrimaryActionDropDownButton';
+import { useAuth } from '../context/AuthContext.jsx';
+import styles from '../user/user.module.css';
+import Button from './Button';
+import PrimaryActionDropDownButton from './PrimaryActionDropDownButton';
 
 export default function UserView() {
     const [users, setUsers] = useState([]);

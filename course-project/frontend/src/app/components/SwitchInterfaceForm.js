@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import styles from './settings.module.css';
+import styles from '../settings/settings.module.css';
 import Button from '../components/Button';
 import PrimaryActionDropDownButton from '../components/PrimaryActionDropDownButton';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import SettingsPanel from './SettingsPanel';
+import SettingsPanel from '../components/SettingsPanel';
 
 export default function SettingsPage() {
   return <SettingsPanel />;

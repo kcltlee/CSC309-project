@@ -1,6 +1,6 @@
 'use client';
 
-import UserView from './UserView';
+import UserView from '../../components/UserView';
 
 export default function UserViewPage() {
   return (

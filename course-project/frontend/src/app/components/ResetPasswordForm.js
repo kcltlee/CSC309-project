@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '../login.module.css';
-import Button from '../../components/Button';
-import colors from '../../constants/colors';
+import styles from '../login/login.module.css';
+import Button from './Button';
+import colors from '../constants/colors';
 
 export default function ResetPasswordForm() {
   const router = useRouter();

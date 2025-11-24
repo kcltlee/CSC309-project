@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../../context/AuthContext.jsx';
-import Button from '../../components/Button';
-import styles from '../user.module.css';
-import colors from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Button from './Button.js';
+import styles from '../user/user.module.css';
+import colors from '../constants/colors.js';
 
 export default function RegisterForm() {
 	const router = useRouter();
