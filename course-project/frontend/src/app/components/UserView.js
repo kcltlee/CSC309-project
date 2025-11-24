@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import styles from '../user/user.module.css';
 import Button from './Button';
 import PrimaryActionDropDownButton from './PrimaryActionDropDownButton';
@@ -51,7 +51,6 @@ export default function UserView() {
         if (activatedFilter) params += (params ? '&' : '') + "activated=" + activatedFilter;
         params += (params ? '&' : '') + "page=" + p;
         params += "&limit=" + limit;
-        console.log(params)
 
         const res = await fetch(`/users?${params}`, {
             method: 'GET',

@@ -29,8 +29,7 @@ export default function ChangePasswordForm() {
         const data = await res.json();
         if (!mounted) return;
         // usually users dont have passwords when first created 
-        const pw = data?.password;
-        setHasPassword(!(pw == '' || pw == null || pw == undefined));
+        setHasPassword(data.activated);
       } catch (e) {
         // keep default if fetch fails
       }

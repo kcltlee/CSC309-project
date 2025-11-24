@@ -9,6 +9,8 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const bcrypt = require('bcryptjs');
+
 async function main() {
   const users = [
 	// superuser
@@ -22,6 +24,7 @@ async function main() {
 		verified: true,
 		activated: true,
 		points: 1000,
+		avatarUrl: "https://img.freepik.com/free-photo/front-view-business-woman-suit_23-2148603018.jpg?semt=ais_hybrid&w=740&q=80"
 	},
 
 	// managers (2)
@@ -34,16 +37,19 @@ async function main() {
 		role: 'manager',
 		verified: true,
 		activated: true,
+		points: 200
 	},
 	{
 		id: 3,
 		utorid: 'alice123',
-		name: 'Anna Manager',
+		name: 'Alice Manager',
 		password: 'pa$$Wor1',
-		email: 'anna@utoronto.ca',
+		email: 'alice@utoronto.ca',
 		role: 'manager',
 		verified: true,
 		activated: true,
+		points: 350,
+		avatarUrl: "https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
 	},
 
 	// cashiers (3)
@@ -56,6 +62,8 @@ async function main() {
 		role: 'cashier',
 		verified: true,
 		activated: true,
+		points: 10,
+		avatarUrl: "https://p16-lemon8-sign-va.tiktokcdn.com/tos-maliva-v-ac5634-us/oYtAgBqWDfAIBASmvcJFEEqBEC3f7ApFwQDw1K~tplv-tej9nj120t-text-logo:QGJlc3RpZTE2Nw==:q75.jpeg?lk3s=c7f08e79&source=lemon8_seo&x-expires=1766642400&x-signature=ykgWLDNFLKsImnf%2FGK4e7BQ16hc%3D"
 	},
 	{
 		id: 5,
@@ -77,6 +85,7 @@ async function main() {
 		role: 'cashier',
 		verified: true,
 		activated: true,
+		avatarUrl: "https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
 	},
 
 	// regular users (4)
@@ -89,6 +98,7 @@ async function main() {
 		role: 'regular',
 		verified: false,
 		activated: true,
+		points: 2000
 	},
 	{
 		id: 8,
@@ -99,6 +109,8 @@ async function main() {
 		role: 'regular',
 		verified: true,
 		activated: true,
+		points: 2590,
+		avatarUrl: "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"
 	},
 	{
 		id: 9,
@@ -109,34 +121,75 @@ async function main() {
 		role: 'regular',
 		verified: false,
 		activated: true,
+		points: 430,
+		avatarUrl: "https://wallpapers.com/images/featured/black-and-white-profile-pictures-cn83bnwy0r4exqyl.jpg"
 	},
 	{
 		id: 10,
-		utorid: 'tester1',
-		name: 'Tester One',
+		utorid: 'sustest',
+		name: 'Suspicious Person',
 		password: 'Test!!11',
 		email: 'tester@mail.utoronto.ca',
 		role: 'regular',
 		verified: true,
 		activated: true,
+		suspicious: true,
+		points: 1005,
+		avatarUrl: "https://www.thesprucepets.com/thmb/A5Rkkt4HDWLAtUOk4gYybcX02mM=/1080x0/filters:no_upscale():strip_icc()/30078352_448703938920062_6275637137232625664_n-5b0de8c443a1030036f9e15e.jpg"
 	},
+	{
+		id: 11,
+		utorid: 'nopassw',
+		name: 'Jane Smith',
+		password: '',
+		email: 'nopassword@mail.utoronto.ca',
+		role: 'regular',
+		verified: false,
+		activated: false,
+	},
+	{
+		id: 12,
+		utorid: 'admin123',
+		name: 'Sarah Jones',
+		password: 'abc123',
+		email: 'superuser@utoronto.ca',
+		role: 'superuser',
+		verified: false,
+		activated: true,
+		avatarUrl: "https://img.wattpad.com/e4b55799f59a849a320c56fd2273099072ded727/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f4937656665514f516566634531673d3d2d313039383732303433362e313639306562333661653032636134623433333135363135383039312e706e67?s=fit&w=720&h=720"
+	},
+	{
+		id: 13,
+		utorid: 'email12',
+		name: 'Email Tester',
+		password: 'oldpassword',
+		email: 'jaycee.law@mail.utoronto.ca',
+		role: 'regular',
+		verified: false,
+		activated: true,
+	}
   ];
 
   for (const u of users) {
+	const hashedPassword = await bcrypt.hash(u.password, 10);
+
 	await prisma.user.upsert({
-	  	where: { utorid: u.utorid },
-	  	update: {
+		where: { utorid: u.utorid },
+		update: {
 			name: u.name,
-			password: u.password,
+			password: hashedPassword,
 			email: u.email,
 			role: u.role,
 			verified: u.verified,
 			activated: u.activated,
 			points: u.points ?? 0,
-	  	},	
-	  	create: u,
+		},
+		create: {
+			...u,
+			password: hashedPassword, 
+		},
 	});
-  }
+}
 
   // PROMOTIONS (all start times in the future; endTime after startTime)
   const h = (hrs) => new Date(Date.now() + hrs * 60 * 60 * 1000);

@@ -13,6 +13,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config(); 
 const JWT_SECRET = process.env.JWT_SECRET; 
 
+const bcrypt = require('bcryptjs');
+
 const { typeCheck } = require('../middleware/verifyInput');
 
 const ipRequests = {};
@@ -33,7 +35,7 @@ router.post('/tokens', async (req, res) => {
         }
     });
 
-    if (!user || user.password !== password) {
+    if (!user || (user.activated && !password) || !(await bcrypt.compare(password, user.password))) {
         return res.status(401).json({ error: "UTORid or password is incorrect" });
     }
 
@@ -46,9 +48,7 @@ router.post('/tokens', async (req, res) => {
 
     // update user's last login
     await prisma.user.update({
-        data: { 
-            lastLogin: new Date(),
-            activated: true },
+        data: { lastLogin: new Date() },
         where: { utorid: utorid }
     })
 
@@ -132,10 +132,12 @@ router.post('/resets/:resetToken', async (req, res) => {
             include at least 1 number, 1 uppercase, 1 lowercase, and 1 special character" });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     await prisma.user.update({
         where: { utorid: utorid },
-        data: { password: password,
-            resetToken: null }
+        data: { password: hashedPassword,
+            resetToken: null,
+            activated: true }
     });
 
     res.status(200).send({ message: "reset password successfully" });

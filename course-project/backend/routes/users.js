@@ -15,6 +15,8 @@ const jwtAuth = require('../middleware/jwtAuth');
 const { typeCheck, parseQuery } = require('../middleware/verifyInput');
 const { objectEnumValues } = require('@prisma/client/runtime/library');
 
+const bcrypt = require('bcryptjs');
+
 // helper function to extract appropriate info to return
 function getUserInfo(user) {
     return {
@@ -28,6 +30,7 @@ function getUserInfo(user) {
         createdAt: user.createdAt,
         lastLogin: user.lastLogin,
         verified: user.verified,
+        activated: user.activated,
         suspicious: user.suspicious,
         avatarUrl: user.avatarUrl,
         promotions: user.promotions
@@ -219,7 +222,6 @@ router.route('/me')
         }
 
         const userInfo = getUserInfo(user);
-        userInfo.password = user.password;
         userInfo.organizedEvents = user.organizedEvents;
 
         res.json(userInfo);
@@ -232,7 +234,7 @@ router.patch('/me/password', jwtAuth, async (req, res) => {
 
     const { old, new: newPassword } = req.body;
 
-    if (old !== req.user.password) {
+    if (!(await bcrypt.compare(old, req.user.password))) {
         return res.status(403).json({ error: "Current password is incorrect" });
     }
     
@@ -242,9 +244,12 @@ router.patch('/me/password', jwtAuth, async (req, res) => {
             include at least 1 number, 1 uppercase, 1 lowercase, and 1 special character." });
     }
 
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({
         where: { id: req.user.id },
-        data: { password: newPassword }
+        data: { password: hashedPassword,
+            activated: true
+        }
     });
 
     res.status(200).send({ message: "updated password successfully" });
