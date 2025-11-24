@@ -1,34 +1,59 @@
-.container {
-  padding: 32px;
-  text-align: center;
+.container { 
+  padding: 32px; 
 }
 
 .welcome {
   margin-bottom: 40px;
+  font-size: 20px;
+  text-align: center;
 }
 
-.cardsContainer {
-  display: flex;
-  gap: 32px;
-  justify-content: center;
-  flex-wrap: wrap;
+.mainDashboardColumns {
+  display: grid;
+  /* 3 equal columns */
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 32px; 
 }
 
-.card {
-  flex: 1;
-  min-width: 200px;
-  max-width: 250px;
-  padding: 24px;
+/* Style the three cards --- */
+.dashboardCard {
+  background-color: #ffffff; 
+  padding: 20px;
   border-radius: 16px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+  display: flex;
+  flex-direction: column; 
+  min-height: 500px;  
+}
+
+.dashboardCard h3 {  
+  font-size: 20px;
+  text-align: center; 
+}
+
+/* Style for the stats display and buttons) */
+.cardSection {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  padding: 10px 0; 
+  margin-top: 16px;
+}
+
+.cardSection p {
+  margin: 4px 0;
+  font-size: 16px;
+  text-align: center; /* Center the stats */
 }
 
 .statLabel {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
+}
+
+/* Manage button */
+.buttonContainer {
+    margin-top: auto; /* Push to the bottom */
+    padding-top: 16px;
+    display: flex;
+    justify-content: center;
 }

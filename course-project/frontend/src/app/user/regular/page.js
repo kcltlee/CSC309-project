@@ -60,12 +60,34 @@ export default function RegularUserPage() {
           </div>
         </div>
 
-        {/* Line Chart */}
+        {/* Line Chart, add to /components maybe */}
         <div className={styles.chartSection}>
           <h4>Recent Point Changes</h4>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="90%" height="250">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
+
+              {/* x axis */}
+              <XAxis 
+                dataKey="name" 
+                label={{ 
+                  value: 'Date', 
+                  position: 'insideBottom', 
+                  offset: -3, 
+                  style: { fontSize: 14 } 
+                }} 
+              />
+
+              {/* y axis*/}
+              <YAxis 
+                label={{ 
+                  value: 'Points', 
+                  angle: -90, 
+                  position: 'center', 
+                  style: { fontSize: 14 } 
+                }} 
+              />
+
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
