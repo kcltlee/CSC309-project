@@ -7,7 +7,7 @@ import { PrimaryButton } from "../../components/Button";
 import { EventsBarChart } from "../../components/EventBarChart";
 import { PromotionChart } from "@/app/components/PromotionChart";
 import { UserPieChart } from "../../components/UserPieChart";
-import styles from "./manager.module.css";
+import styles from '../user.module.css';
 
 const backendURL = "http://localhost:4000";
 
@@ -93,7 +93,7 @@ export default function ManagerDashboardPage() {
   // data we are passing to chart
   const eventDataForChart = getEventsPerMonth(summary.events);
 
-  if (!user) return <p className={styles.container}>Loading...</p>;
+  if (!user) return <p className={styles.pageContainer}>Loading...</p>;
 
   // stats
   const eventStats = {
@@ -118,7 +118,8 @@ export default function ManagerDashboardPage() {
 
   // dashboard 
   return (
-    <main className={styles.container}>
+    <div className={styles.pageContainer}>
+      <main className={`${styles.resultsCard} ${styles.modifiedManagerResultsCard}`}>
       <h2 className={styles.welcome}>Welcome, {user.name}!</h2>
       {/* Three columns */}
       <div className={styles.mainDashboardColumns}>
@@ -163,7 +164,7 @@ export default function ManagerDashboardPage() {
             <div className={styles.cardSection} style={{ borderTop: 'none' }}>
                 <p>Regular: <b>{userStats.regular}</b></p>
                 <p>Cashier: <b>{userStats.cashier}</b></p>
-                <p>Manager/Superuser: <b>{userStats.manager}</b></p>
+                <p>Manager: <b>{userStats.manager}</b></p>
             </div>
             <div className={styles.cardSection}>
                 <h4>User Role Distribution</h4>
@@ -176,5 +177,6 @@ export default function ManagerDashboardPage() {
 
       </div>
     </main>
+    </div>
   );
 }
