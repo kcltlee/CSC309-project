@@ -18,7 +18,7 @@ export default function EventDetailPage() {
     const id = typeof window !== 'undefined' ? localStorage.getItem('eventId') : null;
 
     // User can't see the list of guests so we have to store key in local browser, not sure
-    const rsvp = `rsvp_${id}_${user?.id}`; 
+    const rsvp = `rsvp_${id}_${user?.id}`;
 
     // Notification  
     const [notification, setNotification] = useState({
@@ -50,7 +50,7 @@ export default function EventDetailPage() {
     };
 
     useEffect(() => {
-        if (!id || !user?.id) { 
+        if (!id || !user?.id) {
             if (!id) setError('No EventId found');
             setLoading(false);
             return;
@@ -60,8 +60,8 @@ export default function EventDetailPage() {
         const savedRsvp = localStorage.getItem(rsvp);
         if (savedRsvp === 'true') {
             setIsUserRsvped(true);
-        } else { 
-            setIsUserRsvped(false); 
+        } else {
+            setIsUserRsvped(false);
         }
 
         fetchEvent();
@@ -78,15 +78,15 @@ export default function EventDetailPage() {
 
             const data = await res.json();
 
-            if (res.ok) {   
+            if (res.ok) {
                 setIsUserRsvped(true);
-                localStorage.setItem(rsvp, 'true'); 
-                showNotification(`RSVP successful for ${data.guestAdded.name}!`, 'success'); 
+                localStorage.setItem(rsvp, 'true');
+                showNotification(`RSVP successful for ${data.guestAdded.name}!`, 'success');
                 fetchEvent(); // update number of guests 
-            } else { 
+            } else {
                 const errorMessage = data.error || 'RSVP failed';
                 showNotification(errorMessage, 'error');
-                if (data.error === 'user is already a guest') { 
+                if (data.error === 'user is already a guest') {
                     setIsUserRsvped(true);
                     localStorage.setItem(rsvp, 'true');
                 }
@@ -107,10 +107,10 @@ export default function EventDetailPage() {
     const isManagerOrOrganizer =
         allowedRoles.includes(user?.role) ||
         (event?.organizers || []).some((o) => o.id === user?.id);
-    const actualNumGuests = 
-    typeof event.numGuests === 'number' 
-        ? event.numGuests 
-        : (event.guests || []).length;
+    const actualNumGuests =
+        typeof event.numGuests === 'number'
+            ? event.numGuests
+            : (event.guests || []).length;
 
     // Change button text and style based on RSVP status
     const rsvpButtonText = isUserRsvped ? 'RSVPed!' : 'RSVP';
@@ -118,7 +118,7 @@ export default function EventDetailPage() {
     const isCapacityFull = event.numGuests >= event.capacity;
 
     return (
-        <main className={styles.container}> 
+        <main className={styles.container}>
             <div className={styles.eventContentWrapper}>
                 <h1>{event.name}</h1>
                 <p><strong>Description:</strong> {event.description || 'RSVP to event!'}</p>
@@ -133,18 +133,7 @@ export default function EventDetailPage() {
                 })}</p>
                 <p><strong>Spots Filled:</strong> {actualNumGuests}/{event.capacity}</p>
 
-                {isManagerOrOrganizer ? ( 
-                    <div className={styles.buttonGroup}>
-                        <PrimaryButton
-                            text="Add or Remove Guest"
-                            onClick={() => {localStorage.setItem("eventId", id); router.push("/event/addGuest");}}
-                        />
-                        <PrimaryButton
-                            text="Award Points"
-                            onClick={() => {localStorage.setItem("eventId", id); router.push("/event/awardGuest");}}
-                        />
-                    </div>
-                ) : (
+                {!isManagerOrOrganizer && (
                     <div className={styles.rsvpButtonWrapper}>
                         <PrimaryButton
                             text={isCapacityFull ? 'Event Full' : rsvpButtonText}
@@ -153,6 +142,42 @@ export default function EventDetailPage() {
                             className={rsvpButtonClass}
                         />
                     </div>
+                )}
+
+                {isManagerOrOrganizer && (
+                    <>
+                        {/* more detilas */}
+                        <p><strong>Published:</strong> {event.published ? 'Yes' : 'No'}</p>
+                        <p><strong>Points Available:</strong> {event.pointsRemain}</p>
+                        <p><strong>Points Awarded:</strong> {event.pointsAwarded}</p>
+                        {/* buttons */}
+                        <div className={styles.rsvpButtonWrapper}>
+                            <PrimaryButton
+                                text={isCapacityFull ? 'Event Full' : rsvpButtonText}
+                                onClick={handleRSVP}
+                                disabled={loading || isUserRsvped || isCapacityFull}
+                                className={rsvpButtonClass}
+                            />
+                        </div>
+                        <div className={styles.buttonGroup}>
+                            <PrimaryButton
+                                text="Add or Remove Guest"
+                                onClick={() => { localStorage.setItem("eventId", id); router.push("/event/addGuest"); }}
+                            />
+                            <PrimaryButton
+                                text="Add or Remove Organizers"
+                            // onClick={() => router.push('/event/folder')} 
+                            />
+                            <PrimaryButton
+                                text="Award Points"
+                                onClick={() => { localStorage.setItem("eventId", id); router.push("/event/awardGuest"); }}
+                            />
+                            <PrimaryButton
+                                text="Update Event"
+                                onClick={() => router.push('/event/update')}
+                            />
+                        </div>
+                    </>
                 )}
             </div>
             {/* Notification */}

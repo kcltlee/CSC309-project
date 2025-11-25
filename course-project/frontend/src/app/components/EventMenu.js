@@ -8,15 +8,12 @@ export default function EventMenu() {
   const router = useRouter();
   const { currentInterface } = useAuth();
 
-  const menuOptions = [{ text: 'Events', action: () => router.push('/event') }];
+  const menuOptions = [{ text: 'Events', action: () => router.push('/event') }, { text: 'RSVP Event', action: () => router.push('/event/rsvp') }];
   if (currentInterface === "manager" || currentInterface === "superuser") {
     menuOptions.push({ text: 'Create Event', action: () => router.push('/event/create') });
     menuOptions.push({ text: 'Update Event', action: () => router.push('/event/update') });
-    menuOptions.push({ text: 'RSVP Event', action: () => router.push('/event') });
     menuOptions.push({text: 'Award Points', action: ()=> router.push('/event/awardGuest')});
     menuOptions.push({text: 'Add or Remove Guest', action: ()=> router.push('/event/addGuest')});
-  } else {
-    menuOptions.push({ text: 'RSVP Event', action: () => router.push('/event/rsvp') });
   }
 
   // if only 1 option, render it as a normal nav tab link
