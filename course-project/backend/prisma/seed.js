@@ -149,7 +149,7 @@ async function main() {
 	},
 	{
 		id: 12,
-		utorid: 'admin123',
+		utorid: 'tester1',
 		name: 'Sarah Jones',
 		password: 'abc123',
 		email: 'superuser@utoronto.ca',
@@ -191,7 +191,7 @@ async function main() {
 	});
 }
 
-  // PROMOTIONS (all start times in the future; endTime after startTime)
+  // PROMOTIONS
   const h = (hrs) => new Date(Date.now() + hrs * 60 * 60 * 1000);
 
   const promotions = [
