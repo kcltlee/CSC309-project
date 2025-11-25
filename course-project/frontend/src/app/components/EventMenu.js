@@ -12,10 +12,11 @@ export default function EventMenu() {
   if (currentInterface === "manager" || currentInterface === "superuser") {
     menuOptions.push({ text: 'Create Event', action: () => router.push('/event/create') });
     menuOptions.push({ text: 'Update Event', action: () => router.push('/event/update') });
-    if (currentInterface === "organizer" || currentInterface === "manager" || currentInterface === "superuser") {
-      menuOptions.push({text: 'Award Points', action: ()=> router.push('/event/awardGuest')});
-      menuOptions.push({text: 'Add or Remove Guest', action: ()=> router.push('/event/addGuest')});
-    }
+    menuOptions.push({ text: 'RSVP Event', action: () => router.push('/event') });
+    menuOptions.push({text: 'Award Points', action: ()=> router.push('/event/awardGuest')});
+    menuOptions.push({text: 'Add or Remove Guest', action: ()=> router.push('/event/addGuest')});
+  } else {
+    menuOptions.push({ text: 'RSVP Event', action: () => router.push('/event/rsvp') });
   }
 
   // if only 1 option, render it as a normal nav tab link

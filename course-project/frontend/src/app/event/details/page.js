@@ -14,10 +14,9 @@ export default function EventDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isUserRsvped, setIsUserRsvped] = useState(false);
-    
     const backendURL = 'http://localhost:4000';
     const id = typeof window !== 'undefined' ? localStorage.getItem('eventId') : null;
-    
+
     // User can't see the list of guests so we have to store key in local browser, not sure
     const rsvp = `rsvp_${id}_${user?.id}`; 
 
@@ -40,8 +39,8 @@ export default function EventDetailPage() {
             const res = await fetch(`${backendURL}/events/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
-            if (!res.ok) throw new Error('Failed to load event');
             const data = await res.json();
+            if (!res.ok) throw new Error('Failed to load event');
             setEvent(data);
         } catch (err) {
             setError(err.message);
@@ -155,15 +154,14 @@ export default function EventDetailPage() {
                         />
                     </div>
                 )}
-
-                {/* Notification */}
-                <Notification
-                    message={notification.message}
-                    isVisible={notification.isVisible}
-                    onClose={closeNotification}
-                    type={notification.type}
-                /> 
             </div>
+            {/* Notification */}
+            <Notification
+                message={notification.message}
+                isVisible={notification.isVisible}
+                onClose={closeNotification}
+                type={notification.type}
+            />
         </main>
     );
 }
