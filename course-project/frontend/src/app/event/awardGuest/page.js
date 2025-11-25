@@ -121,7 +121,8 @@ export default function AwardGuestPage() {
                 setUtorid('');
                 setAmount('');
                 setRemark('');
-                fetchEvent(currentEventId);
+                setCurrentEventId(''); 
+                setEvent(null); 
             } else {
                 showNotification(`Error: ${data.error || 'Failed to award points.'}`, 'error');
             }
