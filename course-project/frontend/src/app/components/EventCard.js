@@ -47,7 +47,10 @@ export default function EventCard({
           <span className={styles.label}>Location:</span>{' '}
           {/* Google maps link */}
           <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            // href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            //   location
+            // )}`}
+            href={`https://maps.google.com/?q=${encodeURIComponent(
               location
             )}`}
             target="_blank"
