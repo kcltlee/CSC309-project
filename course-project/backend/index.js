@@ -51,9 +51,6 @@ app.use('/events', eventRoutes);
 const promotionRoutes = require('./routes/promotions'); 
 app.use('/promotions', promotionRoutes);
 
-const apiRoutes = require('./routes/api'); 
-app.use('/api', apiRoutes);
-
 // FOR TESTING ONLY
 const devTestingRoute = require('./routes/devTesting');
 app.use('/dev-testing', devTestingRoute);

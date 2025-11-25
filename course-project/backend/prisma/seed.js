@@ -126,7 +126,7 @@ async function main() {
 	},
 	{
 		id: 10,
-		utorid: 'sustest',
+		utorid: 'tester1',
 		name: 'Suspicious Person',
 		password: 'Test!!11',
 		email: 'tester@mail.utoronto.ca',

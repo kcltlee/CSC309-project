@@ -65,7 +65,7 @@ export default function ResetPasswordForm() {
 		throw new Error(data?.error || 'Failed to reset password');
 	  }
 
-      setSuccess('Password reset successfully. Redirecting to sign in…');
+      setSuccess('Password reset successfully.\nRedirecting to sign in…');
       setTimeout(() => router.push('/login'), 900);
     } catch (err) {
       setError(err?.message || 'Failed to reset password');

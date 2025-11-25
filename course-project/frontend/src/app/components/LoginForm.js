@@ -45,19 +45,7 @@ export default function LoginForm() {
     if (!res.ok) {
       setError(data?.error || 'Failed to generate reset token');
     } else {
-      const emailRes = await fetch('/api/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toEmail: data.email, resetToken: data.resetToken })
-      });
-      const emailData = await emailRes.json();
-
-      if (!emailRes.ok) {
-        setError(emailData?.message || 'Failed to send reset token');
-        return;
-      } 
-
-			sessionStorage.setItem('utorid', utorid.trim());
+	  sessionStorage.setItem('utorid', utorid.trim());
       router.push('/login/reset');
     }
   };

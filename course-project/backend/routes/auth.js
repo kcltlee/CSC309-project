@@ -13,6 +13,9 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config(); 
 const JWT_SECRET = process.env.JWT_SECRET; 
 
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const bcrypt = require('bcryptjs');
 
 const { typeCheck } = require('../middleware/verifyInput');
@@ -81,18 +84,34 @@ router.post('/resets', async (req, res) => {
     } 
 
     ipRequests[ip] = now;
+    const resetToken = uuid();
     const resetInfo = {
         expiresAt: new Date(now + 60 * 60 * 1000), // 1 hour later
-        resetToken: uuid(),
-        email: user.email
+        resetToken: resetToken
     }
 
     await prisma.user.update({
         where: { utorid: utorid },
         data: resetInfo
     });
+    
+    const msg = {
+        to: user.email, 
+        from: 'loyaltyprogram309@gmail.com', 
+        subject: 'Reset Your Password',
+        html: `<p>You requested a password reset. Please use the reset token below within 60 minutes to reset your password.</p> \
+            <p>Reset token: <b>${resetToken}</b></p>`
+    }
 
-    res.status(202).json(resetInfo);
+    sgMail.send(msg)
+        .then(() => {
+            return res.status(202).json({ message: "email sent successfully" });
+        })
+        .catch((error) => {
+            return res.status(400).json({ error: error });
+        })
+
+    // res.status(202).json(resetInfo);
 });
 
 router.post('/resets/:resetToken', async (req, res) => {
