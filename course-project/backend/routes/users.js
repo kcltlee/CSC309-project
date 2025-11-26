@@ -430,19 +430,19 @@ router.route('/me/transactions')
     .get(jwtAuth, async (req, res) => {
                
         // check for correct fields
-        const allowedKeys = ['type', 'relatedId', 'promotionId', 'amount', 'operator', 'pagination', 'limit'];
+        const allowedKeys = ['type', 'relatedId', 'promotionId', 'amount', 'operator', 'page', 'limit'];
         for (const key of Object.keys(req.query)) {
             if (!allowedKeys.includes(key)) {
                 return res.status(400).json({ error: `Bad Request. Unexpected field: ${key}` });
             }
             // convert string to number
-            if (['relatedId', 'promotionId', 'amount', 'pagination', 'limit'].includes(key)) {
+            if (['relatedId', 'promotionId', 'amount', 'page', 'limit'].includes(key)) {
                 req.query[key] = Number(req.query[key]);
 
             }
         }
 
-        const { type, relatedId, promotionId, amount, operator, pagination, limit } = req.query;
+        const { type, relatedId, promotionId, amount, operator, page, limit } = req.query;
         
         let query = {};
         query.include = { promotionIds: true};
@@ -522,13 +522,13 @@ router.route('/me/transactions')
         }
 
         // pagination
-        if (pagination !== undefined) {
-            if (!Number.isInteger(pagination) || pagination <= 0) {
-                return res.status(400).json({ error: "Bad Request. 'pagination' must be a positive integer. \
+        if (page !== undefined) {
+            if (!Number.isInteger(page) || page <= 0) {
+                return res.status(400).json({ error: "Bad Request. 'page' must be a positive integer. \
                                                     pages start at 1. "})
             }
             else {
-                query.skip = (pagination - 1) * pageSize; // pages start at 1 but prisma rows start at 0
+                query.skip = (page - 1) * pageSize; // pages start at 1 but prisma rows start at 0
             }
         }
 
