@@ -104,9 +104,9 @@ export default function EventDetailPage() {
 
     // Role 
     const allowedRoles = ['manager', 'superuser'];
-    const isManagerOrOrganizer =
-        allowedRoles.includes(user?.role) ||
-        (event?.organizers || []).some((o) => o.id === user?.id);
+    const isManager = allowedRoles.includes(user?.role);
+    const isOrganizer = (event?.organizers || []).some((o) => o.id === user?.id);
+    const isManagerOrOrganizer = isManager || isOrganizer;
     const actualNumGuests =
         typeof event.numGuests === 'number'
             ? event.numGuests
@@ -164,10 +164,12 @@ export default function EventDetailPage() {
                                 text="Add or Remove Guest"
                                 onClick={() => { localStorage.setItem("eventId", id); router.push("/event/addGuest"); }}
                             />
-                            <PrimaryButton
-                                text="Add or Remove Organizers"
-                            // onClick={() => router.push('/event/folder')} 
-                            />
+                            {isManager && (
+                                <PrimaryButton
+                                    text="Add or Remove Organizers"
+                                    onClick={() => router.push('/event/addEventOrganizer')}
+                                />
+                            )}
                             <PrimaryButton
                                 text="Award Points"
                                 onClick={() => { localStorage.setItem("eventId", id); router.push("/event/awardGuest"); }}

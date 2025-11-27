@@ -125,6 +125,11 @@ router.get('/', jwtAuth, async (req, res) => {
         // if (q.location) where.location = { contains: String(q.location), mode: 'insensitive' };
         if (q.name) where.name = { contains: String(q.name) };
         if (q.location) where.location = { contains: String(q.location) };
+        if (q.id !== undefined) {
+            const idNum = Number(q.id);
+            if (!Number.isInteger(idNum)) return res.status(400).json({ error: "invalid event id" });
+            where.id = idNum;  
+        }
 
         const now = new Date();
 

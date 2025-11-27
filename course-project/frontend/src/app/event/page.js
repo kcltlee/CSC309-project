@@ -22,7 +22,7 @@ export default function EventsListPage() {
     setLoading(true);
     const url = new URL(backendURL + '/events');
 
-    const allowedKeys = ['name', 'location', 'started', 'ended', 'showFull', 'page', 'limit'];
+    const allowedKeys = ['id', 'name', 'location', 'started', 'ended', 'showFull', 'page', 'limit'];
     const relevantFilters = Object.fromEntries(
       Object.entries(filter).filter(([k, v]) => allowedKeys.includes(k) && v !== '' && v !== undefined)
     );

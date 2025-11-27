@@ -10,11 +10,11 @@ export default function EventFilter({ setFilter }) {
   const [started, setStarted] = useState(undefined);
   const [ended, setEnded] = useState(undefined);
   const [showFull, setShowFull] = useState(false);  
+  const [eventId, setEventId] = useState('');
 
   const statusOptions = [
     { text: 'All', action: () => { setStarted(undefined); setEnded(undefined); } },
     { text: 'Upcoming', action: () => { setStarted(false); setEnded(undefined); } },
-    { text: 'Ongoing', action: () => { setStarted(true); setEnded(undefined); } },
     { text: 'Ended', action: () => { setStarted(undefined); setEnded(true); } },
   ];
 
@@ -25,6 +25,7 @@ export default function EventFilter({ setFilter }) {
     if (started !== undefined) newFilter.started = started;
     if (ended !== undefined) newFilter.ended = ended;
     if (showFull) newFilter.showFull = true;  
+    if (eventId.trim()) newFilter.id = eventId.trim();
 
     setFilter(newFilter);
   };
@@ -35,11 +36,19 @@ export default function EventFilter({ setFilter }) {
     setStarted(undefined);
     setEnded(undefined);
     setShowFull(false);
+    setEventId('');
     setFilter({});
   };
 
   return (
     <div className={styles.container}>
+      <input
+        className={styles.input}
+        type="text"
+        placeholder="Event ID"
+        value={eventId}
+        onChange={(e) => setEventId(e.target.value)}
+      />
       <input
         className={styles.input}
         type="text"
