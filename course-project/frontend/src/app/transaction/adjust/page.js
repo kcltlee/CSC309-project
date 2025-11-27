@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function Adjust() {
 
-    const { token } = useAuth();
+    const { token, currentInterface } = useAuth();
     const router = useRouter();
     const transactionID = localStorage.getItem("transactionID");
     const [ utorid, setUtorid ] = useState()
@@ -99,19 +99,23 @@ export default function Adjust() {
 
     return (
         <div className="main-container">
-            <h1>Adjust Transaction</h1>
-             <TransactionCard {...transactionData} showAll={true} id={transactionID} hideAdjust={true}/>
-            <div className="form">
-                <h5>Amount</h5>
-                <input type="text" value={amount} onChange={e=>setAmount(e.target.value)}></input>
-                <h5>Promotion IDs</h5>
-                <input type="text" value={promotions} onChange={e=>setPromotions(e.target.value)}></input>
-                <h5>Remark</h5>
-                <textarea value={remark} onChange={e=>setRemark(e.target.value)}></textarea>
-                <FeedBackMessage error={error} message={message}/>
-                <PrimaryButton className="submit" text={loading ? "Adjusting..." : "Adjust"}onClick={() => {if (!loading) handleAdjust()}}/>
-                <BackButton text="Back" onClick={() => router.replace('/transaction')}/>
-            </div>
+            {currentInterface == 'manager' || currentInterface == 'superuser' ? 
+            <>
+                <h1>Adjust Transaction</h1>
+                <TransactionCard {...transactionData} showAll={true} id={transactionID} hideAdjust={true}/>
+                <div className="form">
+                    <h5>Amount</h5>
+                    <input type="text" value={amount} onChange={e=>setAmount(e.target.value)}></input>
+                    <h5>Promotion IDs</h5>
+                    <input type="text" value={promotions} onChange={e=>setPromotions(e.target.value)}></input>
+                    <h5>Remark</h5>
+                    <textarea value={remark} onChange={e=>setRemark(e.target.value)}></textarea>
+                    <FeedBackMessage error={error} message={message}/>
+                    <PrimaryButton className="submit" text={loading ? "Adjusting..." : "Adjust"}onClick={() => {if (!loading) handleAdjust()}}/>
+                    <BackButton text="Back" onClick={() => router.replace('/transaction')}/>
+                </div>
+            </>: 
+            currentInterface ? '403 Forbidden' : <div className="spinner"></div>}
         </div>
     );
 }

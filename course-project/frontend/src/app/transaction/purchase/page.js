@@ -6,7 +6,7 @@ import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
 export default function Purchase() {
 
-    const { token } = useAuth();
+    const { token, currentInterface } = useAuth();
     const [ utorid, setUtorid ] = useState("");
     const [ spent, setSpent ] = useState("");
     const [ promotions, setPromotions ] = useState("");
@@ -68,20 +68,25 @@ export default function Purchase() {
 
     return (
         <div className="main-container">
-            <h1>Create Purchase</h1>
-            <div className="form">
-                <h5>Utorid</h5>
-                <input type="text" value={utorid} onChange={e=>setUtorid(e.target.value)}></input>
-                <h5>Spent</h5>
-                <input type="text" value={spent} onChange={e=>setSpent(e.target.value)}></input>
-                <h5>Promotion IDs</h5>
-                <input type="text" value={promotions} onChange={e=>setPromotions(e.target.value)}></input>
-                <h5>Remark</h5>
-                <textarea value={remark} onChange={e=>setRemark(e.target.value)}></textarea>
-                <FeedBackMessage error={error} message={message}/>
-                <PrimaryButton className="submit" text={loading ? "Creating..." : "Create"} 
-                    onClick={() => {if (!loading) handlePurchase()}}/>
-            </div>
+            {currentInterface == 'manager' || currentInterface == 'superuser' || currentInterface == 'cashier' ? 
+            <>
+                <h1>Create Purchase</h1>
+                <div className="form">
+                    <h5>Utorid</h5>
+                    <input type="text" value={utorid} onChange={e=>setUtorid(e.target.value)}></input>
+                    <h5>Spent</h5>
+                    <input type="text" value={spent} onChange={e=>setSpent(e.target.value)}></input>
+                    <h5>Promotion IDs</h5>
+                    <input type="text" value={promotions} onChange={e=>setPromotions(e.target.value)}></input>
+                    <h5>Remark</h5>
+                    <textarea value={remark} onChange={e=>setRemark(e.target.value)}></textarea>
+                    <FeedBackMessage error={error} message={message}/>
+                    <PrimaryButton className="submit" text={loading ? "Creating..." : "Create"} 
+                        onClick={() => {if (!loading) handlePurchase()}}/>
+                </div>
+            </>
+            : currentInterface ? '403 Forbidden' : <div className="spinner"></div>}
+            
         </div>
     );
 }

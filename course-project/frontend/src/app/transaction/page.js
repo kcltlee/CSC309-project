@@ -93,6 +93,7 @@ export default function TransactionsListPage() {
       console.log('no data');
       return;
     }
+    
     setLoading(true);
     const start = page === 1;
     if (start) {
@@ -121,6 +122,7 @@ export default function TransactionsListPage() {
     else {
       data = loadRegular();
     }
+
     setPage(prev => prev + 1);
   };
 

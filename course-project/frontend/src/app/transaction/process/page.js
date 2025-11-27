@@ -9,7 +9,7 @@ export default function Process() {
 
     const searchParams = useSearchParams();
     const defaultTransactionID = searchParams.get("transactionId");
-    const { user, loadUser, token } = useAuth();
+    const { user, loadUser, token, currentInterface } = useAuth();
     const [ transactionID, setTransactionID ] = useState(defaultTransactionID);
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
@@ -58,13 +58,19 @@ export default function Process() {
 
     return (
         <div className="main-container">
-            <h1>Process Redemption</h1>
-            <div className="form">
-                <h5>Transaction ID</h5>
-                <input type="text" value={transactionID} onChange={e=>setTransactionID(e.target.value)}></input>
-                <FeedBackMessage error={error} message={message}/>
-                <PrimaryButton className="submit" text={loading ? "Processing..." : "Process"} onClick={() => {if (!loading) handleProcess()}}/>
-            </div>
+            {currentInterface == 'manager' || currentInterface == 'superuser' || currentInterface == 'cashier' ? 
+            <>
+                <h1>Process Redemption</h1>
+                <div className="form">
+                    <h5>Transaction ID</h5>
+                    <input type="text" value={transactionID} onChange={e=>setTransactionID(e.target.value)}></input>
+                    <FeedBackMessage error={error} message={message}/>
+                    <PrimaryButton className="submit" text={loading ? "Processing..." : "Process"} onClick={() => {if (!loading) handleProcess()}}/>
+                </div>
+            
+            </>
+            : currentInterface ? '403 Forbidden' : <div className="spinner"></div>}
+           
         </div>
     );
 }
