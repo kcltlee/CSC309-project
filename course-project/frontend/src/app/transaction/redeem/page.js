@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import PointsBalance from "@/app/components/PointsBalance";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Redeem() {
 
     const router = useRouter();
+    const { token } = useAuth();
 
     const [ amount, setAmount ] = useState("");
     const [ remark, setRemark ] = useState("");
@@ -22,7 +24,7 @@ export default function Redeem() {
         setMessage("");
 
         fetch(`/users/me/transactions`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            headers: { 'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'},
             method: "POST",
             body: JSON.stringify({ 
