@@ -2,11 +2,15 @@
 import { PrimaryButton } from "@/app/components/Button";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+
 export default function Process() {
 
-    const { user, loadUser } = useAuth();
-    const [ transactionID, setTransactionID ] = useState("");
+    const searchParams = useSearchParams();
+    const defaultTransactionID = searchParams.get("transactionId");
+    const { user, loadUser, token } = useAuth();
+    const [ transactionID, setTransactionID ] = useState(defaultTransactionID);
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
     const [ loading, setLoading ] = useState(false);
@@ -25,7 +29,7 @@ export default function Process() {
         }
 
         fetch(`/transactions/${transactionID}/processed`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            headers: { 'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'},
             method: "PATCH",
             body: JSON.stringify({ processed: true })

@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import TransactionCard from "@/app/components/TransactionCard";
 import { useRouter } from "next/navigation";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Adjust() {
 
+    const { token } = useAuth();
     const router = useRouter();
     const transactionID = localStorage.getItem("transactionID");
     const [ utorid, setUtorid ] = useState()
@@ -21,7 +23,7 @@ export default function Adjust() {
     // // retrieve transaction info
     useEffect(() =>{
          fetch(`/transactions/${transactionID}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            headers: { 'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'},
         })
         .then(response => {
@@ -70,7 +72,7 @@ export default function Adjust() {
         }));       
 
         fetch(`/transactions`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            headers: { 'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'},
             method: "POST",
             body: JSON.stringify(relevantOptions)
