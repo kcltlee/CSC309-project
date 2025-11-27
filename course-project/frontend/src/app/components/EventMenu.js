@@ -13,7 +13,8 @@ export default function EventMenu() {
     menuOptions.push({ text: 'Create Event', action: () => router.push('/event/create') });
     menuOptions.push({ text: 'Update Event', action: () => router.push('/event/update') });
     menuOptions.push({text: 'Award Points', action: ()=> router.push('/event/awardGuest')});
-    menuOptions.push({text: 'Add or Remove Guest', action: ()=> router.push('/event/addGuest')});
+    menuOptions.push({text: 'Add or Remove Guest', action: ()=> router.push('/event/addGuest')}); 
+    menuOptions.push({text: 'Add or Remove Organizers', action: ()=> router.push('/event/addEventOrganizer')});
   }
 
   // if only 1 option, render it as a normal nav tab link
