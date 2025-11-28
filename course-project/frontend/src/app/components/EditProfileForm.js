@@ -18,6 +18,8 @@ export default function EditProfileForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const [initialData, setInitialData] = useState(null);
+
   useEffect(() => {
     let mounted = true;
     async function fetchMe() {
@@ -37,6 +39,12 @@ export default function EditProfileForm() {
         setBirthday(data.birthday || '');
         setAvatarUrl(data.avatarUrl || null);
         setVerified(Boolean(data.verified));
+        setInitialData({
+          name: data.name || '',
+          email: data.email || '',
+          birthday: data.birthday || '',
+          avatarUrl: data.avatarUrl || null
+        });
       } catch (e) {
         // ignore on mount
       }
@@ -51,6 +59,8 @@ export default function EditProfileForm() {
     if (f) {
       const url = URL.createObjectURL(f);
       setAvatarUrl(url);
+    } else {
+      setAvatarUrl(initialData?.avatarUrl || null);
     }
   };
 
@@ -96,6 +106,17 @@ export default function EditProfileForm() {
       if (!res.ok) throw new Error(json?.error || json?.message || `Error ${res.status}`);
       // update avatar url if backend returned full user
       if (json.avatarUrl) setAvatarUrl(json.avatarUrl);
+
+      // update initialData so form becomes not-dirty after save
+      setInitialData({
+        name: name || '',
+        email: email || '',
+        birthday: birthday || '',
+        avatarUrl: json.avatarUrl || avatarUrl || null
+      });
+      // clear chosen file once uploaded
+      setAvatarFile(null);
+
       setSuccess('Profile updated successfully.');
     } catch (err) {
       setError(err?.message || 'Failed to update profile');
@@ -103,6 +124,13 @@ export default function EditProfileForm() {
       setLoading(false);
     }
   };
+
+  const isDirty = Boolean(initialData) && (
+    name !== (initialData.name || '') ||
+    email !== (initialData.email || '') ||
+    birthday !== (initialData.birthday || '') ||
+    avatarFile !== null
+  );
 
   return (
     <form className={styles.formRight} onSubmit={handleSubmit} noValidate>
@@ -170,7 +198,7 @@ export default function EditProfileForm() {
       {success && <div className={styles.success}>{success}</div>}
 
       <div className={styles.formActions}>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading || !isDirty}>
           {loading ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>

@@ -77,6 +77,7 @@ export default function ChangePasswordForm() {
 
   const title = hasPassword ? 'Reset password' : 'Set password';
   const submitLabel = hasPassword ? (loading ? 'Changing...' : 'Change Password') : (loading ? 'Setting...' : 'Set Password');
+  const canSubmit = newPassword.length > 0 && (!hasPassword || currentPassword.length > 0);
 
   return (
     <form className={styles.formRight} onSubmit={handleSubmit} noValidate>
@@ -126,7 +127,7 @@ export default function ChangePasswordForm() {
       {success && <div className={styles.success}>{success}</div>}
 
       <div className={styles.formActions}>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={!canSubmit || loading}>
           {submitLabel}
         </Button>
       </div>

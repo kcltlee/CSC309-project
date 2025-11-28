@@ -66,6 +66,9 @@ export default function RegisterForm() {
 		}
 	};
 
+	// enable submit only when all three inputs have a non-empty value
+	const canSubmit = Boolean(utorid.trim() && fullName.trim() && email.trim());
+
 	return (
 		<div className={styles.container} style={{ '--primary': colors.primary }}>
 			<div className={styles.card}>
@@ -111,10 +114,7 @@ export default function RegisterForm() {
 					{success && <div className={styles.success}>{success}</div>}
 
 					<div className={styles.actions}>
-						{/* <Button type="button" kind="ghost" onClick={() => router.back()} disabled={loading}>
-							Cancel
-						</Button> */}
-						<Button type="submit" disabled={loading}>
+						<Button type="submit" disabled={loading || !canSubmit}>
 							{loading ? 'Creating…' : 'Create User'}
 						</Button>
 					</div>
