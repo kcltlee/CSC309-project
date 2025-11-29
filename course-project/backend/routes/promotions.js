@@ -25,7 +25,7 @@ function isPositiveInteger(v) {
 
 // create promotion (manager or higher)
 router.post('/', jwtAuth, async (req, res) => {
-    // auth
+    // error check user & body
     if (!req.user || (req.user.role !== 'manager' && req.user.role !== 'superuser')) {
         return res.status(403).json({ error: "not permitted" });
     }
@@ -35,36 +35,37 @@ router.post('/', jwtAuth, async (req, res) => {
 
     // basic required fields
     if (!name || typeof name !== 'string' || !description || typeof description !== 'string') {
-        return res.status(400).json({ error: "invalid payload" });
+        return res.status(400).json({ error: "Promotion name or description incorrect" });
     }
 
-    // normalize type (accept "one-time" from clients)
+    // normalize type
     if (type === 'one-time') type = 'onetime';
     if (type !== 'automatic' && type !== 'onetime') {
-        return res.status(400).json({ error: "invalid payload" });
+        return res.status(400).json({ error: "Type incorrect" });
     }
 
     // parse times
     const start = isoToDate(startTime);
     const end = isoToDate(endTime);
-    if (!start || !end) return res.status(400).json({ error: "invalid payload" });
+    if (!start || !end) return res.status(400).json({ error: "Start or end date empty" });
 
     const now = new Date();
-    if (start < now) return res.status(400).json({ error: "invalid payload" });
-    if (end <= start) return res.status(400).json({ error: "invalid payload" });
+    if (start < now) return res.status(400).json({ error: "Start date in the past" });
+    if (end <= start) return res.status(400).json({ error: "End date before start date" });
 
     // validate optional numeric fields only when provided (not null/undefined)
     if (minSpending !== undefined && minSpending !== null && !isPositiveInteger(minSpending)) {
-        return res.status(400).json({ error: "invalid payload" });
+        return res.status(400).json({ error: "Minimum spend invalid payload" });
     }
     if (rate !== undefined && rate !== null && !isPositiveNumber(rate)) {
-        return res.status(400).json({ error: "invalid payload" });
+        return res.status(400).json({ error: "Rate invalid payload" });
     }
     if (points !== undefined && points !== null && !isPositiveInteger(points)) {
-        return res.status(400).json({ error: "invalid payload" });
+        return res.status(400).json({ error: "Points invalid payload" });
     }
 
     // add to existing users if onetime
+    // automatic promotions are added to qualifying transactions already
     const userIds = [];
     if (type === "onetime") {
         const users = await prisma.user.findMany();
@@ -73,7 +74,7 @@ router.post('/', jwtAuth, async (req, res) => {
         }
     }
 
-    // build data object without sending explicit nulls so Prisma applies schema defaults
+    // build data object
     const data = {
         name,
         description,
@@ -101,30 +102,40 @@ router.post('/', jwtAuth, async (req, res) => {
             points: created.points
         });
     } catch (err) {
-        console.error('promotion create error', err && err.stack ? err.stack : err);
+        console.error('promotion create error');
         return res.status(500).json({ error: 'internal server error' });
     }
 });
 
-// list promotions (regular sees only active unused promos; managers see additional filters)
+// list promotions
 router.get('/', jwtAuth, async (req, res) => {
+
+    // get query parameters e.g. /promotions?page=2&limit=20&type=automatic
     const q = req.query || {};
     const page = parseInt(q.page) || 1;
+
+    // error checks if page or limit invalid
     if (page <= 0) {
         return res.status(400).json({ error: "invalid page" });
     }
     if (q.limit !== undefined && parseInt(q.limit) <= 0) {
         return res.status(400).json({ error: "invalid limit" });
     }
+    // limit = number of promotions per page, between 1-100, default 10 if not provided
     const limit = Math.max(1, Math.min(100, parseInt(q.limit) || 10));
+
+    // num promotions to skip before starting current page
     const skip = (page - 1) * limit;
 
+    // prisma object
     const where = {};
 
+    // /promotions?name=summer: return names that contain string case-insensitive
     if (q.name) where.name = { contains: String(q.name), mode: 'insensitive' };
+
+    // type
     if (q.type) {
         if (q.type !== 'automatic' && q.type !== 'one-time') return res.status(400).json({ error: "invalid payload" });
-        
         if (q.type === 'one-time') {
             where.type = 'onetime';
         } else {
@@ -139,10 +150,13 @@ router.get('/', jwtAuth, async (req, res) => {
         if (q.started !== undefined && q.ended !== undefined) {
             return res.status(400).json({ error: "invalid payload" });
         }
+        // for filtering: started=true/false
         if (q.started !== undefined) {
             const startedFlag = String(q.started) === 'true';
             where.startTime = startedFlag ? { lte: now } : { gt: now };
         }
+
+        // for filtering: ended=true/false
         if (q.ended !== undefined) {
             const endedFlag = String(q.ended) === 'true';
             where.endTime = endedFlag ? { lte: now } : { gt: now };
@@ -170,7 +184,7 @@ router.get('/', jwtAuth, async (req, res) => {
         if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
             try {
                 const used = await prisma.user.findFirst({
-                    where: { id: req.user.id, promotions: { some: { id: p.id } } }
+                    where: { id: req.user.id, promotions: { some: { id: p.id } } } // req.user.id from jwtAuth, route protected by jwtAuth
                 });
                 if (used) continue;
             } catch (e) {

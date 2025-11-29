@@ -2,12 +2,15 @@
 import { PrimaryButton } from "@/app/components/Button";
 import { useState } from "react";
 import styles from "../page.module.css";
+import { useAuth } from "@/context/AuthContext";
+import FeedBackMessage from "@/app/components/FeedbackMessage";
 
 export default function CreatePromotion() {
-
+    const { token } = useAuth();
+    
     const [promotionName, setPromotionName] = useState("");
     const [description, setDescription] = useState("");
-    const [type, setType] = useState("Automatic");
+    const [type, setType] = useState("automatic");
     const [minimumSpend, setMinimumSpend] = useState(0);
     const [rate, setRate] = useState(0);
     const [points, setPoints] = useState(0);
@@ -18,13 +21,16 @@ export default function CreatePromotion() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState(false);
 
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+
     async function handleSend() {
         setMessage("");
         try {
-            url = `${backend}/promotions`
-            payload = {
+            const url = `${backend}/promotions`
+            const payload = {
                 "name": promotionName,
                 "description": description,
+                "type": type,
                 "startTime": startTime,
                 "endTime": endTime,
                 "minSpending": minimumSpend, 
@@ -34,15 +40,14 @@ export default function CreatePromotion() {
             const createPromotion = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: payload
+                body: JSON.stringify(payload)
             });
+            const response = await createPromotion.json(); // returns promise so need await
 
-            const response = await createPromotion.json()
 
-            if( !response.ok) {
+            if( !createPromotion.ok) {
                 throw new Error(response.error)
             }
-            
             setError(false);
             setMessage("Create Promotion Successful!");
 
@@ -86,15 +91,15 @@ export default function CreatePromotion() {
                         <h5>Type</h5>
                         <div className={styles.toggleContainer}>
                             <button
-                                className={`${styles.toggleButton} ${type === "Automatic" ? styles.active : ""}`}
-                                onClick={() => setType("Automatic")}
+                                className={`${styles.toggleButton} ${type === "automatic" ? styles.active : ""}`}
+                                onClick={() => setType("automatic")}
                             >
                                 Automatic
                             </button>
 
                             <button
-                                className={`${styles.toggleButton} ${type === "Onetime" ? styles.active : ""}`}
-                                onClick={() => setType("Onetime")}
+                                className={`${styles.toggleButton} ${type === "one-time" ? styles.active : ""}`}
+                                onClick={() => setType("one-time")}
                             >
                                 One-time
                             </button>
@@ -111,7 +116,7 @@ export default function CreatePromotion() {
                         <input
                             type="number"
                             value={rate}
-                            onChange={(e) => setRate(e.target.value)}
+                            onChange={(e) => setRate(Number(e.target.value))}
                         />
                     </div>
 
@@ -121,7 +126,7 @@ export default function CreatePromotion() {
                         <input
                             type="number"
                             value={minimumSpend}
-                            onChange={(e) => setMinimumSpend(e.target.value)}
+                            onChange={(e) => setMinimumSpend(Number(e.target.value))}
                         />
 
                         <h5>End Time</h5>
@@ -135,7 +140,7 @@ export default function CreatePromotion() {
                         <input
                             type="number"
                             value={points}
-                            onChange={(e) => setPoints(e.target.value)}
+                            onChange={(e) => setPoints(Number(e.target.value))}
                         />
                     </div>
                 </div>
@@ -143,10 +148,16 @@ export default function CreatePromotion() {
             </div>
 
             <div className={styles.footer}>
-                <PrimaryButton className="submit" text="Create" onClick={handleSend}/>
-                <p className={`${styles.message} ${error ? styles.error : styles.success}`}>
-                    {message}
-                </p>
+                <FeedBackMessage error={error} message={message}/>
+                <PrimaryButton
+                    className="submit"
+                    text="Create"
+                    type="button"
+                    onClick={() => {
+                        handleSend();
+                    }}
+                />
+   
             </div>
         </div>
     );

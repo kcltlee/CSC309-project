@@ -162,14 +162,6 @@
     text-align: center;
 }
 
-.error {
-    color: red;
-}
-
-.success {
-    color: white;
-}
-
 .buttonRow {
   display: flex;
   gap: 12px;
