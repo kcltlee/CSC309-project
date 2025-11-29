@@ -61,7 +61,14 @@ app.all('*', (_, res) => {
   return res.status(405).json({ error: "Method Not Allowed" });
 });
 
-const server = app.listen(port, () => {
+const http = require("http"); // TODO: change to https with certificate
+
+const server = http.createServer(app);
+
+const { initWebSocket } = require("./websocket");
+initWebSocket(server);
+
+server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
 
