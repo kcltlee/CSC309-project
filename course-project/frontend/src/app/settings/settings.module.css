@@ -1,0 +1,300 @@
+.container {
+  margin-top: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+}
+
+.card {
+  width: 70%;
+  height: 85%;
+  min-height: fit-content;
+  margin-top: 20px;
+  padding: 3%;
+  padding-left: 2%;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: none;
+}
+
+/* split layout */
+.split {
+  height: 100%;
+  min-height: 600px;
+  display: grid;
+  grid-template-columns: 22% 1fr;
+  gap: 20px;
+  /* align-items: start; */
+}
+
+/* left side */
+.side {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sideTitle {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.navButton {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #333;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  background: rgba(0,0,0,0.04);
+  color: #111;
+}
+
+.navButtonActive {
+  background: rgba(0,0,0,0.08);
+  color: #000;
+}
+
+/* main area */
+.main {
+  min-height: 220px;
+  height: 100%;
+  padding-left: 18px;
+  border-left: 1px solid rgba(0,0,0,0.06);
+}
+
+/* right (forms) */
+.formRight {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formTitle {
+  margin: 0 0 8px 0;
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+/* avatar stuff */
+.avatarRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.avatarPreview {
+  width: 92px;
+  height: 92px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarPlaceholder {
+  color: #666;
+  font-size: 0.9rem;
+  padding: 8px;
+  text-align: center;
+}
+
+.avatarControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input[type="file"] {
+  display: block;
+  margin-top: 6px;
+}
+
+.smallNote {
+  font-size: 0.82rem;
+  color: #666;
+}
+
+.verifiedBadge {
+  margin-left: 8px;
+  background: rgba(10,122,40,0.08);
+  color: #0a7a28;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  margin-top: 5px;
+}
+
+/* inputs */
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.92rem;
+  color: #222;
+}
+
+.input {
+  height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: white;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow .12s, border-color .12s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.03);
+}
+
+.input:disabled {
+  color: gray;
+  cursor: not-allowed;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  justify-self: end;
+  align-self: end; 
+}
+
+.error {
+  color: #b00020;
+  background: rgba(176,0,32,0.06);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.success {
+  color: #0a7a28;
+  background: rgba(10,122,40,0.06);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.note {
+  color: var(--primary);
+  background: rgba(196, 178, 88, 0.209);
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.placeholder {
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.02);
+}
+
+.disabledButton {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(0,0,0,0.02);
+  cursor: not-allowed;
+}
+
+/* responsive */
+@media (max-width: 880px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    order: 2;
+  }
+  .main {
+    order: 1;
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+/* switch interface */
+.switchCard {
+  padding: 16px;
+}
+
+.switchFormGrid {
+  gap: 40px;
+  margin-top: 20px;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+}
+
+.metaLabel {
+  font-size: 0.92rem;
+}
+
+.metaValue {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: capitalize;
+}
+
+.chooseLabel {
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+/* .interfaceDropdown {
+
+} */
+
+.interfaceChooser {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.actionsRow {
+  /* display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: auto; */
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  justify-self: end;
+  align-self: end; 
+}
