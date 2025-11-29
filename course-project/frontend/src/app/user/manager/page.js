@@ -50,7 +50,7 @@ function getEventsPerMonth(events) {
 
 export default function ManagerDashboardPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const [summary, setSummary] = useState({
     events: [],
@@ -61,7 +61,6 @@ export default function ManagerDashboardPage() {
   // fetch data for events, promotions, users
   useEffect(() => {
     async function loadData() {
-      const token = localStorage.getItem("token");
 
       try {
         const [eventsRes, promosRes, usersRes] = await Promise.all([

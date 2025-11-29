@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import TagSelect from './TagSelect';
 import styles from './EventFilter.module.css';
 import { PrimaryButton } from './Button';
 
-export default function EventFilter({ setFilter }) {
+export default function EventFilter() {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [started, setStarted] = useState(undefined);
@@ -12,22 +14,31 @@ export default function EventFilter({ setFilter }) {
   const [showFull, setShowFull] = useState(false);  
   const [eventId, setEventId] = useState('');
 
-  const statusOptions = [
-    { text: 'All', action: () => { setStarted(undefined); setEnded(undefined); } },
-    { text: 'Upcoming', action: () => { setStarted(false); setEnded(undefined); } },
-    { text: 'Ended', action: () => { setStarted(undefined); setEnded(true); } },
-  ];
-
   const applyFilter = () => {
-    const newFilter = {};
-    if (name.trim()) newFilter.name = name.trim();
-    if (location.trim()) newFilter.location = location.trim();
-    if (started !== undefined) newFilter.started = started;
-    if (ended !== undefined) newFilter.ended = ended;
-    if (showFull) newFilter.showFull = true;  
-    if (eventId.trim()) newFilter.id = eventId.trim();
+    const filters = {};
 
-    setFilter(newFilter);
+    if (name.trim()) filters.name = name.trim();
+    if (location.trim()) filters.location = location.trim();
+    if (eventId.trim()) filters.id = eventId.trim();
+
+    if (started !== undefined) filters.started = started;
+    if (ended !== undefined) filters.ended = ended;
+    if (showFull) filters.showFull = true;   
+
+    const params = new URLSearchParams();
+
+    // convert filters object to urlsearchparams
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== "" && value !== null && value !== undefined) { 
+          if (typeof value === 'boolean') {
+              params.set(key, value.toString());
+          } else {
+              params.set(key, value);
+          }
+        }
+      });
+    // update url
+    router.replace(`?${params.toString()}`);
   };
 
   const clearFilters = () => {
@@ -37,8 +48,14 @@ export default function EventFilter({ setFilter }) {
     setEnded(undefined);
     setShowFull(false);
     setEventId('');
-    setFilter({});
+    router.replace(`/event`);
   };
+
+  const statusOptions = [
+    { text: 'All', action: () => { setStarted(undefined); setEnded(undefined); applyFilter(); } },
+    { text: 'Upcoming', action: () => { setStarted(false); setEnded(undefined); applyFilter(); } },
+    { text: 'Ended', action: () => { setStarted(undefined); setEnded(true); applyFilter(); } },
+  ];
 
   return (
     <div className={styles.container}>
