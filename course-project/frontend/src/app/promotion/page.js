@@ -8,7 +8,8 @@ import PromotionCard from '../components/PromotionCard'
 
 export default function PromotionsPage() {
   const {token, currentInterface} = useAuth();
-  const scrollRef = useRef();
+  const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const scrollRef = useRef(null);
   
   const [promotions, setPromotions] = useState([]);
 
@@ -43,24 +44,23 @@ export default function PromotionsPage() {
 
   // useCallback memoizes the function - React keeps the same reference between renders unless dependencies change
   const fetchPromotions = useCallback(async (targetPage = 1, replace = true) => {
-    if (loading) return;
+    // Allow replace fetch even if a previous fetch is in-flight (avoid empty list on double Apply)
+    if (loading && !replace) return;
 
     setLoading(true);
     setError(false);
-    
     try {
-
-      const res = await fetch(`/promotions`, {
-        credentials: 'include'
-      });
-
+     if (!backendURL) throw new Error('Missing backend URL');
+     const res = await fetch(`${backendURL}/promotions`, {
+       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+       credentials: 'include'
+     });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-
       let list = data.results || [];
 
-      // Apply committed filters
+      // Filters
       if (appliedSearchTerm) {
         const term = appliedSearchTerm.toLowerCase();
         list = list.filter(p => p.name && p.name.toLowerCase().includes(term));
@@ -71,15 +71,11 @@ export default function PromotionsPage() {
       }
       if (appliedStartAfter) {
         const s = new Date(`${appliedStartAfter}T00:00`);
-        if (!isNaN(s)) {
-          list = list.filter(p => p.startTime && new Date(p.startTime) >= s);
-        }
+        if (!isNaN(s)) list = list.filter(p => p.startTime && new Date(p.startTime) >= s);
       }
       if (appliedEndBefore) {
         const e = new Date(`${appliedEndBefore}T23:59:59.999`);
-        if (!isNaN(e)) {
-          list = list.filter(p => p.endTime && new Date(p.endTime) <= e);
-        }
+        if (!isNaN(e)) list = list.filter(p => p.endTime && new Date(p.endTime) <= e);
       }
       if (appliedRateMin !== '') {
         const rMin = Number(appliedRateMin);
@@ -94,23 +90,21 @@ export default function PromotionsPage() {
         list = list.filter(p => p.points != null && Number(p.points) >= ptMin);
       }
 
-      // pagination
-      const startIdx = (targetPage - 1) * 10; // next 10 promotions start idx based on page
-      const batch = list.slice(startIdx, startIdx + 10); // next 10 promotions
-      setPromotions(prev => replace ? batch : [...prev, ...batch]); // append to existing array, for infinite scroll
-      if (batch.length < 10 || startIdx + 10 >= list.length) setReachedEnd(true); // if fewer than 10 items were returned - reached the end
-      setPage(targetPage + 1); // increment page for next fetch
-
+      // Pagination
+      const startIdx = (targetPage - 1) * 10;
+      const batch = list.slice(startIdx, startIdx + 10);
+      setPromotions(prev => replace ? batch : [...prev, ...batch]);
+      if (batch.length < 10 || startIdx + 10 >= list.length) setReachedEnd(true);
+      setPage(targetPage + 1);
     } catch (e) {
       setError(true);
-      setMessage(e.toString())
+      setMessage(e.message || String(e));
     } finally {
       setLoading(false);
     }
-  }, [token, typeFilter, appliedSearchTerm, appliedStartAfter, appliedEndBefore, appliedRateMin, appliedMinSpendMin, appliedPointsMin, loading]);
+  }, [backendURL, token, typeFilter, appliedSearchTerm, appliedStartAfter, appliedEndBefore, appliedRateMin, appliedMinSpendMin, appliedPointsMin]);
 
   const triggerSearch = () => {
-    // Commit all current inputs then refetch
     setAppliedSearchTerm(searchName.trim());
     setAppliedStartAfter(startAfter);
     setAppliedEndBefore(endBefore);
@@ -118,18 +112,52 @@ export default function PromotionsPage() {
     setAppliedMinSpendMin(minSpendMin);
     setAppliedPointsMin(pointsMin);
 
-    // reset page
-    setPromotions([]);
-    setPage(1); 
+    // reset paging state
+    setPage(1);
+    setReachedEnd(false);
+
+    // don’t clear list until new data arrives; show old results until replaced
+    fetchPromotions(1, true);
+  };
+
+  const clearFilters = () => {
+    // reset live inputs
+    setSearchName('');
+    setTypeFilter('');
+    setStartAfter('');
+    setEndBefore('');
+    setRateMin('');
+    setMinSpendMin('');
+    setPointsMin('');
+
+    // reset committed filters
+    setAppliedSearchTerm('');
+    setAppliedStartAfter('');
+    setAppliedEndBefore('');
+    setAppliedRateMin('');
+    setAppliedMinSpendMin('');
+    setAppliedPointsMin('');
+
+    // reset paging and list, then fetch fresh
+    setPage(1);
     setReachedEnd(false);
     fetchPromotions(1, true);
   };
 
+  // Initial load
   useEffect(() => {
-    // Initial load and when committed filters change
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
+    fetchPromotions(1, true);
+  }, []); 
+
+  // Refetch when committed filters or type change
+  useEffect(() => {
+    setPromotions([]);
+    setPage(1);
+    setReachedEnd(false);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
     fetchPromotions(1, true);
   }, [fetchPromotions]);
 
@@ -141,10 +169,6 @@ export default function PromotionsPage() {
     }
   };
 
-  if (scrollRef.current) {
-    scrollRef.current.scrollTop = 0;
-  }
-
   const handleDelete = async (id) => {
       if (!token) {return; }
       if (!window.confirm(`Delete promotion #${id}?`)) return;
@@ -153,7 +177,7 @@ export default function PromotionsPage() {
         const url = `/promotions/${id}`;
         const res = await fetch(url, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          credentials: 'include'
         });
   
         const body = await res.json();
@@ -165,11 +189,9 @@ export default function PromotionsPage() {
   
       } catch (e) {
         setError(true);
-        setMessage(e.toString());
+        setMessage(e.message || String(e));
       }
     };
-
-  
 
   return (
     <div className={styles.pageContainer}>
@@ -183,18 +205,17 @@ export default function PromotionsPage() {
         />
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-
           {/* Type filter */}
           <div className={styles.filterItem}>
-              <label className={styles.filterLabel}>Type:</label>
-              <PrimaryActionDropDownButton
-                  options={[
-                      { text: 'Any', action: () => { setTypeFilter(''); setPage(1); setReachedEnd(false); } },
-                      { text: 'Automatic', action: () => { setTypeFilter('automatic'); setPage(1); setReachedEnd(false); } },
-                      { text: 'One-time', action: () => { setTypeFilter('one-time'); setPage(1); setReachedEnd(false); } },
-                  ]}
-                  className={styles.filterDropDown}
-              />
+            <label className={styles.filterLabel}>Type:</label>
+            <PrimaryActionDropDownButton
+              options={[
+                { text: 'Any', action: () => { setTypeFilter(''); setPage(1); setReachedEnd(false); } },
+                { text: 'Automatic', action: () => { setTypeFilter('automatic'); setPage(1); setReachedEnd(false); } },
+                { text: 'One-time', action: () => { setTypeFilter('one-time'); setPage(1); setReachedEnd(false); } },
+              ]}
+              className={styles.filterDropDown}
+            />
           </div>
 
           {/* filter inputs (commit on Search click) */}
@@ -250,18 +271,32 @@ export default function PromotionsPage() {
           <button type="button" onClick={triggerSearch} style={{ padding: '6px 10px', borderRadius: 6 }}>
             Apply Filters
           </button>
+          <button type="button" onClick={clearFilters} style={{ padding: '6px 10px', borderRadius: 6 }}>
+            Clear Filters
+          </button>
         </div>
-        <div ref={scrollRef} onScroll={handleScroll}>
-          {promotions.map(p => (
-            <PromotionCard
-              key={p.id}
-              {...p}
-              canDelete={['manager','superuser'].includes(currentInterface)}
-              onDelete={handleDelete}
-            />
-          ))}
+
+        <div className={styles.resultsContainer}>
+          <div className={styles.resultsCard}>
+            <div ref={scrollRef} className={styles.promotionList} onScroll={handleScroll}>
+              {loading && <div>Loading…</div>}
+              {error && <div style={{ color: 'red' }}>Error: {message}</div>}
+              {!loading && !error && promotions.length === 0 && <div>No promotions found</div>}
+              {!loading && !error && promotions.map((p) => (
+                <PromotionCard
+                  key={p.id}
+                  {...p}
+                  canDelete={['manager','superuser'].includes(currentInterface)}
+                  onDelete={handleDelete}
+                />
+              ))}
+              {reachedEnd && promotions.length > 0 && (
+                <div style={{ padding: 8, opacity: 0.6 }} />
+              )}
+            </div>
+          </div>
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import styles from './EventCard.module.css';
+import styles from './PromotionCard.module.css';
 
 export default function PromotionCard({
   id,
@@ -26,10 +26,8 @@ export default function PromotionCard({
         {minSpending != null && <div><strong>Min Spend:</strong> {minSpending}</div>}
         {rate != null && <div><strong>Rate:</strong> {rate}</div>}
         {points != null && <div><strong>Points:</strong> {points}</div>}
+        {type != null && <div><strong>Type:</strong> {type}</div>}
       </div>
-
-      <span className={styles.roleBadge} style={{ textTransform: 'uppercase' }}>{type}</span>
-
       {canDelete && (
         <div className={styles.cardActions}>
           <button

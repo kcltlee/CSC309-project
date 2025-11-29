@@ -1,0 +1,142 @@
+
+
+.resultsContainer {
+  margin-top: 1%;
+  /* padding: 28px 24px; */
+  /* padding-bottom: 100px; */
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.resultsCard {
+  width: 100%;
+  height: fit-content;
+  padding-bottom: 15px;
+  margin-top: 20px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: none;
+}
+
+.promotionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+.resultItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 1rem;
+  padding-top: 1.7rem;
+  padding-bottom: 1.2rem;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+  position: relative;
+  transition: 120ms ease;
+}
+
+
+/* two-column layout */
+.row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.left {
+  flex: 1 1 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.right {
+  flex: 1 1 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; 
+  gap: 8px;
+}
+
+.titleArea {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+  
+}
+
+.name {
+  font-weight: 700;   
+  text-align: right;   
+}
+
+/* Stack buttons vertically on the right */
+.buttonsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+.label { font-weight: bold; }
+.mapLink { color: navy; text-decoration: underline; cursor: pointer; }
+.mapLink:hover { text-decoration: none; }
+
+.deleteDanger {
+  color: #ff0000 !important;
+  border: 1px solid #ff0000 !important;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.deleteDanger:hover {
+  background: rgba(255, 0, 0, 0.06) !important;
+}
+
+
+.promotionName {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.roleBadge {
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+  display: inline-block;
+  padding: 0px 7px;
+  text-align: center;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+/* responsive single-column on small screens */
+@media (max-width: 640px) {
+  .row { flex-direction: column; }
+  .right { align-items: stretch; }
+  .buttonsCol { align-items: stretch; }
+}

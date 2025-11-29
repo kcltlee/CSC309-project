@@ -150,5 +150,5 @@ model Notification {
   message     String
   seen        Boolean       @default(false)
   time        DateTime
-  user        User          @relation(fields: [utorid], references: [utorid], "UserNotifications")
+  user        User          @relation("UserNotifications", fields: [utorid], references: [utorid])
 }
