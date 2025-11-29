@@ -9,7 +9,7 @@ import styles from '../event.module.css';
 
 export default function EventDetailPage() {
     const router = useRouter();
-    const { user, token } = useAuth();
+    const { user, token, initializing } = useAuth();
     const searchParams = useSearchParams();
     const id = searchParams.get('eventId');
     const [event, setEvent] = useState(null);
@@ -22,6 +22,12 @@ export default function EventDetailPage() {
     const [notification, setNotification] = useState({isVisible: false,message: '',type: 'success',});
     const showNotification = (message, type) => {setNotification({ isVisible: true, message, type });};
     const closeNotification = () => {setNotification(prev => ({ ...prev, isVisible: false }));};
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing]);
 
     // check if user already rsvp 
     const checkRsvpStatus = async () => {

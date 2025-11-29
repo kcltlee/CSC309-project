@@ -9,7 +9,8 @@ import styles from '../event.module.css';
 
 export default function AddGuestsPage() {
     const searchParams = useSearchParams()
-    const { user, token } = useAuth();
+    const { user, token, initializing } = useAuth();
+    const router = useRouter();
     const initialEventId = searchParams.get('eventId') || '';
     const [currentEventId, setCurrentEventId] = useState(initialEventId);
     const [event, setEvent] = useState(null);
@@ -23,6 +24,12 @@ export default function AddGuestsPage() {
     const [notification, setNotification] = useState({ isVisible: false, message: '', type: 'success' });
     const showNotification = (message, type = 'success') => setNotification({ isVisible: true, message, type });
     const closeNotification = () => setNotification(prev => ({ ...prev, isVisible: false }));
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing]);
 
     useEffect(() => {
         if (!currentEventId) {

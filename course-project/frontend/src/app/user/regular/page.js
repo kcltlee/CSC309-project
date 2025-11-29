@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import TransactionCard from "../../components/TransactionCard";
 import { UserLineChart } from "../../components/UserLineChart";
 import PointsBalance from "../../components/PointsBalance";
@@ -9,8 +10,15 @@ import styles from '../user.module.css';
 const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 export default function RegularUserPage() {
-  const { user, token } = useAuth();
+  const router = useRouter();
+  const { user, token, initializing } = useAuth();
   const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    if (!initializing && !token) {
+      router.replace('/login');
+    }
+  }, [initializing]);
 
   useEffect(() => {
     if (!user) return;

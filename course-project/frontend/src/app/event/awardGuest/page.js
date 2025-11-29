@@ -13,9 +13,8 @@ export default function AwardGuestPage() {
     const { notify } = useNotification();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { user, token } = useAuth();
+    const { user, token, initializing } = useAuth();
     const [currentEventId, setCurrentEventId] = useState(searchParams.get('eventId') || '');
-
     const [utorid, setUtorid] = useState('');
     const [amount, setAmount] = useState('');
     const [remark, setRemark] = useState('');
@@ -28,6 +27,12 @@ export default function AwardGuestPage() {
     const [notification, setNotification] = useState({ isVisible: false, message: '', type: 'success' });
     const showNotification = (message, type) => setNotification({ isVisible: true, message, type });
     const closeNotification = () => setNotification(prev => ({ ...prev, isVisible: false }));
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing]);
 
     useEffect(() => {
         if (!currentEventId || !user) {

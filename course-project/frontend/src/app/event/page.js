@@ -4,11 +4,12 @@ import EventCard from '../components/EventCard';
 import EventFilter from '../components/EventFilter';
 import styles from '@/app/event/event.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function EventsListPage() {
   const PAGELIMIT = 5;
-  const { user, token } = useAuth();
+  const router = useRouter();
+  const { user, token, initializing } = useAuth();
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const [end, setEnd] = useState(false);
@@ -19,6 +20,12 @@ export default function EventsListPage() {
   const searchParams = useSearchParams();
   const filter = Object.fromEntries(searchParams.entries()); 
   const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  useEffect(() => {
+    if (!initializing && !token) {
+      router.replace('/login');
+    }
+  }, [initializing])
 
   const loadData = async (specificPage = 1) => {
     if (!token) return; 

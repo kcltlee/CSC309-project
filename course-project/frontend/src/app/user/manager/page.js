@@ -31,7 +31,7 @@ function getEventsPerMonth(events) {
       monthYear: monthKey,
       count: 0, // initialize event count to 0 
       // x axis labels 
-      label: d.toLocaleString("en-US", { month: "short"}),
+      label: d.toLocaleString("en-US", { month: "short" }),
     };
   }
 
@@ -50,7 +50,13 @@ function getEventsPerMonth(events) {
 
 export default function ManagerDashboardPage() {
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, token, initializing } = useAuth();
+
+  useEffect(() => {
+    if (!initializing && !token) {
+      router.replace('/login');
+    }
+  }, [initializing]);
 
   const [summary, setSummary] = useState({
     events: [],
@@ -119,63 +125,63 @@ export default function ManagerDashboardPage() {
   return (
     <div className={styles.pageContainer}>
       <main className={`${styles.resultsCard} ${styles.modifiedManagerResultsCard}`}>
-      <h2 className={styles.welcome}>Welcome, {user.name}!</h2>
-      {/* Three columns */}
-      <div className={styles.mainDashboardColumns}>
-        {/* Events */}
-        <div className={styles.dashboardCard}>
-          <h3>Total Events: {eventStats.total}</h3>
-          <div className={styles.cardSection} style={{ borderTop: "none" }}>
-            <p>Upcoming: <b>{eventStats.upcoming}</b></p>
-            <p>Ongoing: <b>{eventStats.ongoing}</b></p>
-            <p>Past: <b>{eventStats.past}</b></p>
-          </div>
-          <div className={styles.cardSection}>
-            <h4>Event Activity (Past 6 Months)</h4>
-            <EventsBarChart data={eventDataForChart} />
-          </div>
-          <div className={styles.buttonContainer}>
-            <PrimaryButton text="Manage Events →" onClick={() => router.push("/event")} />
-          </div>
-        </div>
-
-        {/* Promotions */}
-        <div className={styles.dashboardCard}>
-          <h3>Total Promotions: {promoStats.total}</h3>
-          <div className={styles.cardSection} style={{ borderTop: "none" }}>
-            <p>Active: <b>{promoStats.active}</b></p>
-            <p>Ended: <b>{promoStats.ended}</b></p>
-          </div>
-          <div className={styles.cardSection}>
-            <h4>Promotion Overview</h4>
-            <div className={styles.placeholderBox}>
-              <PromotionChart promotions={summary.promos} />
-            </div>
-          </div>
-          <div className={styles.buttonContainer}>
-            <PrimaryButton text="Manage Promotions →" onClick={() => router.push("/promotion")} />
-          </div>
-        </div>
-
-        {/* Users */}
-        <div className={styles.dashboardCard}>
-            <h3>Total Users: {userStats.total}</h3>
-            <div className={styles.cardSection} style={{ borderTop: 'none' }}>
-                <p>Regular: <b>{userStats.regular}</b></p>
-                <p>Cashier: <b>{userStats.cashier}</b></p>
-                <p>Manager: <b>{userStats.manager}</b></p>
+        <h2 className={styles.welcome}>Welcome, {user.name}!</h2>
+        {/* Three columns */}
+        <div className={styles.mainDashboardColumns}>
+          {/* Events */}
+          <div className={styles.dashboardCard}>
+            <h3>Total Events: {eventStats.total}</h3>
+            <div className={styles.cardSection} style={{ borderTop: "none" }}>
+              <p>Upcoming: <b>{eventStats.upcoming}</b></p>
+              <p>Ongoing: <b>{eventStats.ongoing}</b></p>
+              <p>Past: <b>{eventStats.past}</b></p>
             </div>
             <div className={styles.cardSection}>
-                <h4>User Role Distribution</h4>
-                <UserPieChart userStats={userStats} />
+              <h4>Event Activity (Past 6 Months)</h4>
+              <EventsBarChart data={eventDataForChart} />
             </div>
             <div className={styles.buttonContainer}>
-                <PrimaryButton text="Manage Users →" onClick={() => router.push("/user/view")} />
+              <PrimaryButton text="Manage Events →" onClick={() => router.push("/event")} />
             </div>
-        </div>
+          </div>
 
-      </div>
-    </main>
+          {/* Promotions */}
+          <div className={styles.dashboardCard}>
+            <h3>Total Promotions: {promoStats.total}</h3>
+            <div className={styles.cardSection} style={{ borderTop: "none" }}>
+              <p>Active: <b>{promoStats.active}</b></p>
+              <p>Ended: <b>{promoStats.ended}</b></p>
+            </div>
+            <div className={styles.cardSection}>
+              <h4>Promotion Overview</h4>
+              <div className={styles.placeholderBox}>
+                <PromotionChart promotions={summary.promos} />
+              </div>
+            </div>
+            <div className={styles.buttonContainer}>
+              <PrimaryButton text="Manage Promotions →" onClick={() => router.push("/promotion")} />
+            </div>
+          </div>
+
+          {/* Users */}
+          <div className={styles.dashboardCard}>
+            <h3>Total Users: {userStats.total}</h3>
+            <div className={styles.cardSection} style={{ borderTop: 'none' }}>
+              <p>Regular: <b>{userStats.regular}</b></p>
+              <p>Cashier: <b>{userStats.cashier}</b></p>
+              <p>Manager: <b>{userStats.manager}</b></p>
+            </div>
+            <div className={styles.cardSection}>
+              <h4>User Role Distribution</h4>
+              <UserPieChart userStats={userStats} />
+            </div>
+            <div className={styles.buttonContainer}>
+              <PrimaryButton text="Manage Users →" onClick={() => router.push("/user/view")} />
+            </div>
+          </div>
+
+        </div>
+      </main>
     </div>
   );
 }
