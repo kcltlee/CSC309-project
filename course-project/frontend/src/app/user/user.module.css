@@ -515,11 +515,47 @@
 }
 
 .cashierDataSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin-top: 50px;  
   padding: 20px;
   text-align: center;
   border-top: 1px dashed rgba(0, 0, 0, 0.1); /* dash line to separate*/
   color: #777;  
+}
+
+.transaction {
+    border-radius: 50px;
+    width: 200px;
+    height: 50px;
+    margin-left: 4px;
+    margin-right: 16px;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 4px 8px;
+    border: 2px solid var(--color-light-gray);
+    cursor: pointer;
+    font-family: 'Neue Montreal', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.transaction:hover {
+    filter: brightness(0.95);
+    box-shadow: 0 4px 10px rgba(0,0,0,.25);
+}
+
+.purchase {
+    background-color: #d18544;
+    border-radius: 10px;
+}
+
+.redemption {
+    background-color: #9676b3;
+    border-radius: 10px;
 }
 
 /* Manager/Superuser landing page */
