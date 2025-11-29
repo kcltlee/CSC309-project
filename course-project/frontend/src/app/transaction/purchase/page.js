@@ -1,6 +1,6 @@
 'use client';
 import { PrimaryButton } from "@/app/components/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
@@ -9,7 +9,7 @@ export default function Purchase() {
 
     const router = useRouter();
     const { notify } = useNotification();
-    const { token, currentInterface, user, loadUser } = useAuth();
+    const { token, currentInterface, user, loadUser, initializing } = useAuth();
     const [ utorid, setUtorid ] = useState("");
     const [ spent, setSpent ] = useState("");
     const [ promotions, setPromotions ] = useState("");
@@ -17,6 +17,12 @@ export default function Purchase() {
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
     const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing])
 
     async function handlePurchase() {
         if (loading) return;

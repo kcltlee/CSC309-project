@@ -4,7 +4,7 @@ import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Process() {
 
@@ -12,11 +12,17 @@ export default function Process() {
     const { notify } = useNotification();
     const searchParams = useSearchParams();
     const defaultTransactionID = searchParams.get("transactionId") || "";
-    const { user, loadUser, token, currentInterface } = useAuth();
+    const { user, loadUser, token, currentInterface, initializing } = useAuth();
     const [ transactionID, setTransactionID ] = useState(defaultTransactionID);
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
     const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing])
 
     async function handleProcess() {
         if (loading) return;

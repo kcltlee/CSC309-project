@@ -9,7 +9,7 @@ import { useNotification } from "@/context/NotificationContext";
 
 export default function Adjust() {
 
-    const { token, currentInterface } = useAuth();
+    const { token, currentInterface, initializing } = useAuth();
     const { notify } = useNotification();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -22,6 +22,12 @@ export default function Adjust() {
     const [ error, setError ] = useState(false);
     const [ transactionData, setTransactionData ] = useState();
     const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing])
 
     // // retrieve transaction info
     useEffect(() =>{

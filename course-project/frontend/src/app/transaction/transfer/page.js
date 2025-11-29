@@ -1,6 +1,6 @@
 'use client';
 import { PrimaryButton } from "@/app/components/Button";
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import PointsBalance from "@/app/components/PointsBalance";
 import { useAuth } from "@/context/AuthContext";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
@@ -10,13 +10,19 @@ export default function Transfer() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const defaultRecipient = searchParams.get("utorid") || '';
-    const { loadUser, token } = useAuth();
+    const { loadUser, token, initializing } = useAuth();
     const [ recipientID, setRecipientID ] = useState(defaultRecipient);
     const [ amount, setAmount ] = useState("");
     const [ remark, setRemark ] = useState("");
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
     const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing])
 
     async function handleSend() {
         if (loading) return;

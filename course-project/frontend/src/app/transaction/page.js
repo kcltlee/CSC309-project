@@ -4,24 +4,31 @@ import TransactionCard from '../components/TransactionCard';
 import TransactionFilter from '../components/TransactionFilter';
 import styles from '@/app/transaction/transaction.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function TransactionsListPage() {
 
   const PAGELIMIT = 5;
-  const { token, currentInterface } = useAuth();
+  const { token, currentInterface, initializing} = useAuth();
+  const router = useRouter();
+  const scrollRef = useRef();
+  const searchParams = useSearchParams();
+  const filter = Object.fromEntries(searchParams.entries());
+  const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+
   const [ transactions, setTransactions ] = useState([]);
-  // const [ filter, setFilter ] = useState({});
   const [ showAll, setShowAll ] = useState(false);
   const [ page, setPage ] = useState(1);
   const [ end, setEnd ] = useState(false);
   const [ loading, setLoading ] = useState(true);
   const [ errorMessage, setErrorMessage ] = useState('');
   const [ error, setError ] = useState(false);
-  const scrollRef = useRef();
-  const searchParams = useSearchParams();
-  const filter = Object.fromEntries(searchParams.entries());
-  const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+ 
+  useEffect(() => {
+      if (!initializing && !token) {
+        router.replace('/login');
+      }
+  }, [initializing])
 
   useEffect(() => {
     if (currentInterface) {

@@ -1,12 +1,22 @@
 'use client';
 import QRCode from "react-qr-code";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 export default function RedeemQR() {
   const FRONTEND_URL = usePathname() || 'http:localhost:3000';
   const searchParams = useSearchParams();
   const transactionId = searchParams.get("transactionId");
+  const { initializing, token } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+      if (!initializing && !token) {
+          router.replace('/login');
+      }
+  }, [initializing])
 
   return (
     <div className="main-container">

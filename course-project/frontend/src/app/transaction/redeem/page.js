@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import PointsBalance from "@/app/components/PointsBalance";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
@@ -8,13 +8,19 @@ import { PrimaryButton } from "@/app/components/Button";
 export default function Redeem() {
 
     const router = useRouter();
-    const { token } = useAuth();
+    const { token, initializing } = useAuth();
 
     const [ amount, setAmount ] = useState("");
     const [ remark, setRemark ] = useState("");
     const [ message, setMessage ] = useState("");
     const [ error, setError ] = useState(false);
     const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (!initializing && !token) {
+            router.replace('/login');
+        }
+    }, [initializing])
 
     async function handleRedeem() {
         if (loading) return;
