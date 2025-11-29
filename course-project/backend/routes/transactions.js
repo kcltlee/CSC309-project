@@ -176,11 +176,26 @@ router.route('/')
         const take = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * take;
 
+        if (filters.promotionId !== undefined) {
+            if (isNaN(filters.promotionId)) {
+                return res.status(400).json({ error: "Bad Request. 'promotionId' must be a number."})
+            }
+            else {
+                filters.promotionIds = {
+                    some: {
+                        id: filters.promotionId
+                    }
+                };
+                delete filters.promotionId;
+            }
+        }
+
         let transactions = await prisma.transaction.findMany({
             where: filters,
             skip: skip,
             take: take,
-            include: { promotionIds: true }
+            include: { promotionIds : true, event: true },
+            orderBy: { id: 'desc'}
         });
 
         res.json({
@@ -199,7 +214,7 @@ router.get('/:transactionId', jwtAuth, async (req, res) => {
         return res.status(404).json({ error: "invalid transaction id" });
     } 
 
-    const transaction = await prisma.transaction.findUnique({ where: { id: id }, include: { promotionIds: true} });
+    const transaction = await prisma.transaction.findUnique({ where: { id: id }, include: { promotionIds: true, event: true} });
     if(!transaction) {
         return res.status(404).json({ error: "transaction not found" });
     }

@@ -445,7 +445,7 @@ router.route('/me/transactions')
         const { type, relatedId, promotionId, amount, operator, page, limit } = req.query;
         
         let query = {};
-        query.include = { promotionIds: true};
+        query.include = { promotionIds: true, event: true};
         let filters = {}
         filters.utorid = req.user.utorid; // only include user's transactions
 
@@ -531,6 +531,8 @@ router.route('/me/transactions')
                 query.skip = (page - 1) * pageSize; // pages start at 1 but prisma rows start at 0
             }
         }
+
+        query.orderBy = { id: 'desc' }; // show most recent transactions first
 
         // get total count of filtered results
         const count = await prisma.transaction.count({ where: filters });

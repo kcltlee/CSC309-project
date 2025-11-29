@@ -832,12 +832,6 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
         return res.status(403).json({ error: "Forbidden. Clearance level not met." });
     }
 
-    // validate number of fields in payload
-    const num_fields = Object.keys(req.body).length;
-    if (num_fields < 2 || num_fields > 3) {
-        return res.status(400).json({ error: "Bad Request. invalid number of fields." });
-    }
-
     const { type, utorid, amount } = req.body;
     // validate event type
     if (typeof type !== 'string' || type !== 'event') {
@@ -859,9 +853,6 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
     if (!utorid) {
 
         const num_fields = Object.keys(req.body).filter(k => !(k === 'utorid' && (req.body.utorid === null || req.body.utorid === undefined)));
-        if (num_fields.length !== 2) {
-            return res.status(400).json({ error: "Bad Request. Unexpected extra field when no utorid specified." });
-        }
 
         curr_guest = remaining_guests.pop();
         if (!curr_guest) {
@@ -931,7 +922,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
                             createdBy: req.user.utorid,
                             awarded: amount,
                             amount: amount,
-                            eventId: event.id // used to display a user's transactions
+                            eventId: event.id
                         },
                         select: {
                             id: true,
@@ -940,7 +931,8 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
                             relatedId: true,
                             remark: true,
                             createdBy: true,
-                            awarded: true
+                            awarded: true,
+                            event: { select: { name: true}}
                         }
                     })
 
