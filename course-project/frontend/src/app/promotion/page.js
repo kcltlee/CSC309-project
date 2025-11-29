@@ -49,11 +49,8 @@ export default function PromotionsPage() {
     setError(false);
     
     try {
-    //   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    //   if (!token) throw new Error('Not logged in');
 
-      const res = await fetch(`${backend}/promotions`, {
-        // headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`/promotions`, {
         credentials: 'include'
       });
 
