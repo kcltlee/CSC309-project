@@ -40,7 +40,8 @@ You may use these pre-made demo accounts to test different features of our websi
 | SendGrid | Send direct emails to users |
 | Recharts | Visualize data on user dashboard |
 | BcryptJS | Hash + encrypt user passwords |
-| WebSocket | Send user notifications |
+| ws | Websocket library for real-time user notifications |
+| react-qr-code | React component to generate QR codes |
 
 ## Repo Structure
 ```

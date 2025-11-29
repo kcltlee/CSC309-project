@@ -3,19 +3,20 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import TransactionCard from "../../components/TransactionCard";
 import { UserLineChart } from "../../components/UserLineChart";
+import PointsBalance from "../../components/PointsBalance";
 import styles from '../user.module.css';
 
 const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 export default function RegularUserPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
     if (!user) return;
 
     fetch(`${backendURL}/users/me/transactions?limit=5`, { // Display recent transactions, assume 5 for now
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => setTransactions(data.results));
@@ -35,7 +36,8 @@ export default function RegularUserPage() {
     <div className={styles.pageContainer}>
       <main className={styles.resultsCard}>
         <h2 className={styles.welcome}>Welcome, {user.name}</h2>
-        <h3 className={styles.pointBalance}>Current Points: {user.points}</h3>
+        {/* <h3 className={styles.pointBalance}>Current Points: {user.points}</h3> */}
+        <PointsBalance />
         <div className={styles.dashboard}>
           {/* Transaction List */}
           <div className={styles.transactionsSection}>

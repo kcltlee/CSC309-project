@@ -8,8 +8,7 @@ import Notification from '../../components/Notification';
 import styles from '../event.module.css';
 
 export default function RsvpPage() {
-    const router = useRouter();
-    const { user } = useAuth();
+    const { user, token } = useAuth(); 
     const [eventId, setEventId] = useState('');
     const [loading, setLoading] = useState(false);
     const [isRsvped, setIsRsvped] = useState(false);
@@ -19,25 +18,34 @@ export default function RsvpPage() {
     const showNotification = (message, type) => setNotification({ isVisible: true, message, type });
     const closeNotification = () => setNotification(prev => ({ ...prev, isVisible: false }));
 
-    const rsvpKey = eventId && user?.id ? `rsvp_${eventId}_${user.id}` : null;
-
     // Check if already RSVP
-    useEffect(() => {
-        if (rsvpKey && localStorage.getItem(rsvpKey) === 'true') {
-            setIsRsvped(true);
+    const checkRsvpStatus = async (currentEventId) => {
+        if (!currentEventId || !token) {
+            setIsRsvped(false);
+            return;
+        } 
+        try {
+            const res = await fetch(`${backendURL}/events/${currentEventId}/guests/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (res.ok && data.hasRSVP) {
+                setIsRsvped(true)
+            } else {
+                setIsRsvped(false); 
+            }
+        } catch (err) {
+            console.error('Error checking RSVP status:', err); 
+            setIsRsvped(false); 
         }
-    }, [rsvpKey]);
+    };
 
     // Reset RSVP when input for eventId changes
     useEffect(() => {
-        if (!eventId.trim()) {
-            setIsRsvped(false);
-            return;
-        }
-        if (rsvpKey && localStorage.getItem(rsvpKey) === 'true') {
-            setIsRsvped(true);
+        if (eventId.trim()) {
+            checkRsvpStatus(eventId.trim());
         } else {
-            setIsRsvped(false);
+            setIsRsvped(false)
         }
     }, [eventId]);
 
@@ -51,24 +59,23 @@ export default function RsvpPage() {
                 return;
             }
             setLoading(true);
+
             const res = await fetch(`${backendURL}/events/${eventId}/guests/me`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await res.json();
 
             if (res.ok) { 
-                if (rsvpKey) {
-                    localStorage.setItem(rsvpKey, 'true');
-                    setIsRsvped(true); 
-                }
-                showNotification(`RSVP successful for event ID: ${eventId}!`, 'success');
+                // localStorage.setItem(rsvpKey, 'true');
+                setIsRsvped(true); 
+                showNotification(`RSVP successful for event ID: ${eventId}!`, 'success'); 
             } else {
                 showNotification(`RSVP failed. Error: ${data.error || 'Event not found or inaccessible.'}`, 'error');
             }
         } catch (err) {
-            showNotification('Server error. Try again later.', 'error');
+            showNotification('Try again later.', 'error');
         } finally {
             setLoading(false);
         }

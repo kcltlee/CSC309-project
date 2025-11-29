@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { PrimaryButton } from '../../components/Button';
 import Notification from '../../components/Notification';
 import styles from '../event.module.css';
 
-export default function AddGuestsPage() {
-    const router = useRouter();
-    const { user } = useAuth();
-    const [currentEventId, setCurrentEventId] = useState('');
+export default function AddGuestsPage() { 
+    const searchParams = useSearchParams()
+    const { user, token } = useAuth();
+    const initialEventId = searchParams.get('eventId') || '';
+    const [currentEventId, setCurrentEventId] = useState(initialEventId); 
     const [event, setEvent] = useState(null);
     const [selectedUserId, setSelectedUserId] = useState('');
     const [newGuestUtorid, setNewGuestUtorid] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState('');
-
     const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
     const [notification, setNotification] = useState({ isVisible: false, message: '', type: 'success' });
@@ -25,7 +25,7 @@ export default function AddGuestsPage() {
     const closeNotification = () => setNotification(prev => ({ ...prev, isVisible: false }));
 
     // Fetch Event
-    const fetchEvent = useCallback(async (eventId) => {
+    const fetchEvent = async (eventId) => {
         if (!eventId) return;
         setLoading(true);
         setError('');
@@ -33,7 +33,7 @@ export default function AddGuestsPage() {
         try {
             const res = await fetch(`${backendURL}/events/${eventId}`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             if (!res.ok) {
@@ -48,28 +48,17 @@ export default function AddGuestsPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
-
-    // Load eventId, check if have 
-    useEffect(() => {
-        const idFromStorage =
-            typeof window !== 'undefined' ? localStorage.getItem('eventId') : null;
-
-        if (idFromStorage) {
-            setCurrentEventId(idFromStorage);
-            localStorage.removeItem('eventId');
-        }
-        setLoading(false);
-    }, []);
+    };
 
     useEffect(() => {
         if (currentEventId && user) {
             fetchEvent(currentEventId);
         } else {
+            setLoading(false); 
             setEvent(null);
             setError('');
         }
-    }, [currentEventId, user, fetchEvent]);
+    }, [currentEventId, user]);
 
     // role
     const isManagerOrSuperuser = ['manager', 'superuser'].includes(user?.role);
@@ -85,7 +74,7 @@ export default function AddGuestsPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ utorid: newGuestUtorid.trim() }),
             });
@@ -114,7 +103,7 @@ export default function AddGuestsPage() {
                 `${backendURL}/events/${currentEventId}/guests/${selectedUserId}`,
                 {
                     method: 'DELETE',
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
             if (res.ok) {
@@ -154,6 +143,10 @@ export default function AddGuestsPage() {
                         className={styles.input}
                     />
                 </section>
+
+                {/* Status based on eventId */}
+                {loading && currentEventId && <p>Loading event details...</p>}
+                {currentEventId && !loading && !event && (<p style={{ color: 'red' }}>Event not found.</p>)}
 
                 {/* Add guest */}
                 <section className={styles.formSection}>

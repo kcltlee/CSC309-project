@@ -655,4 +655,10 @@
   .editorActions {
     margin-top: 2rem;
   }
+
+  .mainDashboardColumns {
+    /* change to one column per row, stacked */
+    grid-template-columns: 1fr; 
+    gap: 24px;
+  }
 }

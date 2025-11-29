@@ -113,9 +113,8 @@ export default function EventCard({
             )}
             <PrimaryButton
               text="View →"
-              onClick={() => {
-                localStorage.setItem('eventId', String(id));
-                router.push('/event/details');
+              onClick={() => { 
+                router.push(`/event/details?eventId=${id}`);
               }}
             />
           </div>

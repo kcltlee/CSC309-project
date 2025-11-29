@@ -520,6 +520,35 @@ router.delete('/:eventId/organizers/:userId', jwtAuth, async (req, res) => {
     }
 })
 
+// check the logged-in user's RSVP status
+router.get('/:eventId/guests/me', jwtAuth, async (req, res) => {
+    try { 
+        if (!req.user) {
+            return res.status(401).json({ error: "not authenticated" });
+        }
+        // check eventId
+        const eventId = Number(req.params.eventId);
+        if (!Number.isInteger(eventId) || eventId < 1) {
+            return res.status(404).json({ error: "invalid event id" });
+        }
+        const isGuest = await prisma.eventGuest.findUnique({
+            where: {
+                userId_eventId: {
+                    userId: req.user.id,
+                    eventId
+                }
+            }
+        });
+        if (isGuest) {
+            return res.json({ hasRSVP: true, confirmed: isGuest.confirmed });
+        } else {
+            return res.json({ hasRSVP: false });
+        }
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
+    }
+});
+
 // Add the logged-in user to the event (Regular user)
 router.post('/:eventId/guests/me', jwtAuth, async (req, res) => {
     try {

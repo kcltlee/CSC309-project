@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { PrimaryButton } from '../../components/Button';
 import Notification from '../../components/Notification';
@@ -9,35 +9,44 @@ import styles from '../event.module.css';
 
 export default function EventDetailPage() {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, token } = useAuth();
+    const searchParams = useSearchParams();
+    const id = searchParams.get('eventId');
+
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isUserRsvped, setIsUserRsvped] = useState(false);
     const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-    const id = typeof window !== 'undefined' ? localStorage.getItem('eventId') : null;
-
-    // User can't see the list of guests so we have to store key in local browser, not sure
-    const rsvp = `rsvp_${id}_${user?.id}`;
-
+    
     // Notification  
-    const [notification, setNotification] = useState({
-        isVisible: false,
-        message: '',
-        type: 'success',
-    });
-    const showNotification = (message, type) => {
-        setNotification({ isVisible: true, message, type });
-    };
-    const closeNotification = () => {
-        setNotification(prev => ({ ...prev, isVisible: false }));
+    const [notification, setNotification] = useState({isVisible: false,message: '',type: 'success',});
+    const showNotification = (message, type) => {setNotification({ isVisible: true, message, type });};
+    const closeNotification = () => {setNotification(prev => ({ ...prev, isVisible: false }));};
+
+    // check if user already rsvp 
+    const checkRsvpStatus = async () => {
+        try {
+            const res = await fetch(`${backendURL}/events/${id}/guests/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (res.ok && data.hasRSVP) {
+                setIsUserRsvped(true); 
+            } else {
+                setIsUserRsvped(false); 
+            }
+        } catch (err) {
+            console.error('Error checking RSVP status:', err); 
+            setIsUserRsvped(false);
+        }
     };
 
     // Fetch event  
     const fetchEvent = async () => {
         try {
             const res = await fetch(`${backendURL}/events/${id}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
             if (!res.ok) throw new Error('Failed to load event');
@@ -50,22 +59,16 @@ export default function EventDetailPage() {
     };
 
     useEffect(() => {
-        if (!id || !user?.id) {
+        if (!id || !user?.id ) {
             if (!id) setError('No EventId found');
             setLoading(false);
             return;
         }
-
-        // Check if status is saved in browser storage
-        const savedRsvp = localStorage.getItem(rsvp);
-        if (savedRsvp === 'true') {
-            setIsUserRsvped(true);
-        } else {
-            setIsUserRsvped(false);
-        }
-
+        setError('');  
+        setLoading(true); 
         fetchEvent();
-    }, [id, user?.id]); // Rerun if event or user changes  
+        checkRsvpStatus();
+    }, [id, user?.id, token]); // Rerun if event or user or token changes  
 
     // RSVP  
     const handleRSVP = async () => {
@@ -73,22 +76,20 @@ export default function EventDetailPage() {
             setLoading(true);
             const res = await fetch(`${backendURL}/events/${id}/guests/me`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await res.json();
 
             if (res.ok) {
-                setIsUserRsvped(true);
-                localStorage.setItem(rsvp, 'true');
+                setIsUserRsvped(true); 
                 showNotification(`RSVP successful for ${data.guestAdded.name}!`, 'success');
                 fetchEvent(); // update number of guests 
             } else {
                 const errorMessage = data.error || 'RSVP failed';
                 showNotification(errorMessage, 'error');
                 if (data.error === 'user is already a guest') {
-                    setIsUserRsvped(true);
-                    localStorage.setItem(rsvp, 'true');
+                    setIsUserRsvped(true); 
                 }
             }
         } catch (err) {
@@ -162,7 +163,7 @@ export default function EventDetailPage() {
                         <div className={styles.buttonGroup}>
                             <PrimaryButton
                                 text="Add or Remove Guest"
-                                onClick={() => { localStorage.setItem("eventId", id); router.push("/event/addGuest"); }}
+                                onClick={() => { router.push(`/event/addGuest?eventId=${id}`); }}
                             />
                             {isManager && (
                                 <PrimaryButton
@@ -172,7 +173,7 @@ export default function EventDetailPage() {
                             )}
                             <PrimaryButton
                                 text="Award Points"
-                                onClick={() => { localStorage.setItem("eventId", id); router.push("/event/awardGuest"); }}
+                                onClick={() => { router.push(`/event/awardGuest?eventId=${id}`); }}
                             />
                             <PrimaryButton
                                 text="Update Event"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { PrimaryButton } from '../../components/Button';
 import Notification from '../../components/Notification';
@@ -10,17 +10,18 @@ import styles from '../event.module.css';
 import { useNotification } from '@/context/NotificationContext';
 
 export default function AwardGuestPage() {
-
     const { notify } = useNotification();
     const router = useRouter();
-    const { user } = useAuth();
-    const [currentEventId, setCurrentEventId] = useState('');
+    const searchParams = useSearchParams();
+    const { user, token } = useAuth();
+    const [currentEventId, setCurrentEventId] = useState(searchParams.get('eventId') || '');
+
     const [utorid, setUtorid] = useState('');
     const [amount, setAmount] = useState('');
     const [remark, setRemark] = useState('');
     const [event, setEvent] = useState(null);
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
@@ -36,7 +37,7 @@ export default function AwardGuestPage() {
 
         try {
             const res = await fetch(`${backendURL}/events/${eventId}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, },
+                headers: { Authorization: `Bearer ${token}`, },
             });
             if (!res.ok) {
                 const { error } = await res.json();
@@ -50,27 +51,16 @@ export default function AwardGuestPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token, backendURL, setEvent, setLoading, setError]); // rerun fetch if these changes
 
-    // Load eventId, check if have 
-    useEffect(() => {
-        const idFromStorage = typeof window !== 'undefined' ? localStorage.getItem('eventId') : null;
-        if (idFromStorage) {
-            setCurrentEventId(idFromStorage);
-            localStorage.removeItem('eventId');
-        } else {
-            setLoading(false);
-        }
-    }, []);
-
-    // fetch event runs when currentEventId changes 
+     // fetch event, run when current EventId or fetch eevnt or user changes
     useEffect(() => {
         if (currentEventId && user) {
             fetchEvent(currentEventId);
         } else {
+            setLoading(false); 
             setEvent(null);
             setError('');
-            setLoading(false);
         }
     }, [currentEventId, user, fetchEvent]);
 
@@ -103,7 +93,7 @@ export default function AwardGuestPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(payload),
             });
@@ -171,7 +161,7 @@ export default function AwardGuestPage() {
 
                 {/* Status based on eventId */}
                 {loading && currentEventId && <p>Loading event details...</p>}
-                {currentEventId && !loading && !event && (<p style={{ color: 'red' }}>Invalid event ID or event not found.</p>)}
+                {currentEventId && !loading && !event && (<p style={{ color: 'red' }}>Event not found.</p>)}
 
                 {/* Remaining form */}
                 <div className={styles.awardFormSection}>
