@@ -23,7 +23,7 @@ async function main() {
 		role: 'superuser',
 		verified: true,
 		activated: true,
-		points: 1000,
+		points: 285,
 		avatarUrl: "https://img.freepik.com/free-photo/front-view-business-woman-suit_23-2148603018.jpg?semt=ais_hybrid&w=740&q=80"
 	},
 
@@ -48,7 +48,7 @@ async function main() {
 		role: 'manager',
 		verified: true,
 		activated: true,
-		points: 350,
+		points: 145,
 		avatarUrl: "https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
 	},
 
@@ -62,7 +62,7 @@ async function main() {
 		role: 'cashier',
 		verified: true,
 		activated: true,
-		points: 10,
+		points: 40,
 		avatarUrl: "https://p16-lemon8-sign-va.tiktokcdn.com/tos-maliva-v-ac5634-us/oYtAgBqWDfAIBASmvcJFEEqBEC3f7ApFwQDw1K~tplv-tej9nj120t-text-logo:QGJlc3RpZTE2Nw==:q75.jpeg?lk3s=c7f08e79&source=lemon8_seo&x-expires=1766642400&x-signature=ykgWLDNFLKsImnf%2FGK4e7BQ16hc%3D"
 	},
 	{
@@ -121,7 +121,7 @@ async function main() {
 		role: 'regular',
 		verified: false,
 		activated: true,
-		points: 430,
+		points: 310,
 		avatarUrl: "https://wallpapers.com/images/featured/black-and-white-profile-pictures-cn83bnwy0r4exqyl.jpg"
 	},
 	{
@@ -822,7 +822,75 @@ async function main() {
 		eventId: 5,
 		remark: "best performance",
 		createdBy: 'john123'
+	},
+
+	// some more transactions for cashier1, alice123
+	{
+		id: 31,
+		utorid: 'cashier1',
+		type: 'purchase',
+		remark: 'school supplies',
+		createdBy: 'john123',
+		amount: 40,
+		spent: 10,
+
+	},
+
+	{
+		id: 32,
+		utorid: 'cashier1',
+		type: 'redemption',
+		remark: 'bonus',
+		createdBy: 'cashier1',
+		amount: -25,
+	},
+
+	{
+		id: 33,
+		utorid: 'alice123',
+		type: 'purchase',
+		remark: 'christmas gift',
+		createdBy: 'john123',
+		amount: 200,
+		spent: 50,
+
+	},
+
+	{
+		id: 34,
+		utorid: 'alice123',
+		type: 'transfer',
+		remark: 'uber',
+		createdBy: 'alice123',
+		amount: -25,
+		sender: 'alice123',
+		recipient: 'cashier1',
+		relatedId: 35
+	},
+
+	{
+		id: 35,
+		utorid: 'cashier1',
+		type: 'transfer',
+		remark: 'uber',
+		createdBy: 'alice123',
+		amount: 25,
+		sender: 'alice123',
+		recipient: 'cashier1',
+		relatedId: 34
+	},
+
+	{
+		id: 36,
+		utorid: 'alice123',
+		type: 'redemption',
+		remark: 'shopping',
+		createdBy: 'alice123',
+		amount: -30,
+		processed: true,
+		relatedId: 1
 	}
+
   ]
 
   for (const t of transactions) {
@@ -837,6 +905,104 @@ async function main() {
 			spent: t.spent,
 	  	},	
 	  	create: t,
+	});
+  }
+
+  const notifications = [
+	{
+		id: 1,
+		utorid: 'superusr',
+		message: 'ID1: Earned 400 pts from purchase of $100.',
+		time: new Date('2025-11-15T10:00:00.000Z'),
+		seen: false
+	},
+
+	{
+		id: 2,
+		utorid: 'superusr',
+		message: 'ID3: Received 10 pts from tester1.',
+		time: new Date('2025-11-16T10:00:00.000Z'),
+		seen: false
+	},
+
+	{
+		id: 3,
+		utorid: 'alice123',
+		message: 'ID36: Redemption of 20 pts processed.',
+		time: new Date('2025-11-16T11:00:00.000Z'),
+		seen: false
+	},
+
+	{
+		id: 4,
+		utorid: 'cashier1',
+		message: 'ID31: Earned 40 pts from purchase of $10.',
+		time: new Date('2025-11-16T11:00:00.000Z'),
+		seen: true
+	},
+
+	{
+		id: 5,
+		utorid: 'cashier1',
+		message: 'ID35: Received 25 pts from alice123.',
+		time: new Date('2025-11-16T12:00:00.000Z'),
+		seen: false
+	},
+
+	{
+		id: 6,
+		utorid: 'userabc1',
+		message: 'ID12: Earned 120 pts from purchase of $30.',
+		time: new Date('2025-11-16T12:00:00.000Z'),
+	},
+
+	{
+		id: 7,
+		utorid: 'userabc1',
+		message: 'ID21: Adjusted Transaction 12 by 120 pts.',
+		time: new Date('2025-11-16T13:00:00.000Z'),
+	},
+
+	{
+		id: 8,
+		utorid: 'userabc1',
+		message: 'ID22: Adjusted Transaction 12 by -20 pts.',
+		time: new Date('2025-11-16T14:00:00.000Z'),
+	},
+
+	{
+		id: 9,
+		utorid: 'userabc1',
+		message: 'ID26: Awarded 100 pts from Hackathon.',
+		time: new Date('2025-11-16T14:00:00.000Z'),
+	},
+
+	{
+		id: 10,
+		utorid: 'userabc1',
+		message: 'ID27: Awarded 10 pts from Art Workshop.',
+		time: new Date('2025-11-16T14:00:00.000Z'),
+	},
+
+	{
+		id: 11,
+		utorid: 'alice123',
+		message: 'cashier1: Cannot make Monday shift.',
+		time: new Date('2025-11-18T11:00:00.000Z'),
+		seen: false
+	}
+  ]
+
+  for (const n of notifications) {
+	await prisma.notification.upsert({
+	  	where: { id: n.id },
+	  	update: {
+			utorid: n.utorid,
+			message: n.message,
+			time: n.time,
+			seen: n.seen,
+	  	},	
+	  	create: n,
 	});
   }
 
