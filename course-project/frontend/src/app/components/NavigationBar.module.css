@@ -143,6 +143,7 @@
 .dropdown {
   position: absolute;
   top: calc(100% + var(--spacing-s));
+  min-width: 200px;
   right: 0; 
   left: auto;
   background: var(--color-white);
@@ -188,6 +189,10 @@
   right: var(--spacing-m);
   height: 2px;
   background: var(--color-light-gray);
+}
+
+.dropdownItem span {
+  padding-right: 12px;
 }
 
 .dropdownItem:last-child::after {

@@ -11,6 +11,8 @@ let wss; // websocket instance
 const { storeNotification, clearNotifications, 
       retrieveNotifications, viewNotification, regularUsers } = require('../routes/notifications'); 
 
+require('dotenv').config(); 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 // Initialize WebSocket server
 function initWebSocket(server) {
@@ -18,7 +20,7 @@ function initWebSocket(server) {
 
   wss.on("connection", async (ws, req) => {
 
-    const utorid = new URL(req.url, "http://localhost:3000").searchParams.get("utorid");
+    const utorid = new URL(req.url, FRONTEND_URL).searchParams.get("utorid");
 
     // add client connected clients map
     if (utorid) {
