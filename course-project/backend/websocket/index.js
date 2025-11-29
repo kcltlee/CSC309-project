@@ -9,7 +9,7 @@ const clients = new Map();
 let wss; // websocket instance
 
 const { storeNotification, clearNotifications, 
-      retrieveNotifications, viewNotification } = require('../routes/notifications'); 
+      retrieveNotifications, viewNotification, regularUsers } = require('../routes/notifications'); 
 
 
 // Initialize WebSocket server
@@ -36,7 +36,13 @@ function initWebSocket(server) {
 
       // notify another user
       if (message) {
-          notify(utorid, message);
+          try {
+              await notify(utorid, message);
+              ws.send(JSON.stringify({ sent: true}));
+          }
+          catch (err) {
+              ws.send(JSON.stringify({ error: err.message}));
+          }
       }
 
       // clear notifications
@@ -61,16 +67,15 @@ function initWebSocket(server) {
 
 // sends a notification to a user
 async function notify(utorid, message) {
-  const ws = clients.get(utorid);
+    const ws = clients.get(utorid);
 
-  // store in database
-  const notification = await storeNotification(utorid, message);
+    // store in database
+    const notification = await storeNotification(utorid, message);
 
-  // send directly if user is online
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(notification));
-  }
-
+    // send directly if user is online
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(notification));
+    } 
 }
 
 // Export functions

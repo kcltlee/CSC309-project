@@ -6,15 +6,18 @@ const prisma = new PrismaClient();
 
 // create pending notification when user is offline
 const storeNotification = async (utorid, message) => {
-    try {
-        const result = await prisma.Notification.create({ 
-            data: {utorid: utorid, message: message, time: new Date()}
-        })
-        return result;
+    
+    const user = await prisma.user.findUnique({ where: { utorid: utorid }});
+
+    if (!user) {
+        throw new Error("User does not exist.");
     }
-    catch (err) {
-        console.log(err.message);
-    }
+
+    const result = await prisma.Notification.create({ 
+        data: {utorid: utorid, message: message, time: new Date()}
+    })
+
+    return result;
 
 };
 
