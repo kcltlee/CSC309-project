@@ -14,17 +14,41 @@ export default function CreatePromotion() {
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
 
+    // error handling
     const [message, setMessage] = useState("");
     const [error, setError] = useState(false);
 
     async function handleSend() {
         setMessage("");
         try {
+            url = `${backend}/promotions`
+            payload = {
+                "name": promotionName,
+                "description": description,
+                "startTime": startTime,
+                "endTime": endTime,
+                "minSpending": minimumSpend, 
+                "rate": rate, 
+                "points": points
+            }
+            const createPromotion = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: payload
+            });
+
+            const response = await createPromotion.json()
+
+            if( !response.ok) {
+                throw new Error(response.error)
+            }
+            
             setError(false);
             setMessage("Create Promotion Successful!");
+
         } catch (err) {
             setError(true);
-            setMessage("Failed to create promotion.");
+            setMessage(err.toString());
         }
     }
 

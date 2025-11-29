@@ -295,7 +295,7 @@ export default function PromotionsPage() {
                   )}
                 </div>
               ))}
-              {reachedEnd && promotions.length > 0 && <div style={{ padding: 8, opacity: 0.6 }}>End</div>}
+              {reachedEnd && promotions.length > 0 && <div style={{ padding: 8, opacity: 0.6 }}></div>}
             </div>
           </div>
         </div>

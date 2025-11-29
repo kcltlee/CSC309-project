@@ -39,7 +39,7 @@ export default function UpdatePromotion() {
       const url = `${backend}/promotions/${idNum}`;
       console.log('[UpdatePromotion] GET:', url);
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      const body = await res.json().catch(()=>({}));
+      const body = await res.json();
       console.log('[UpdatePromotion] GET status:', res.status, 'body:', body);
       if (!res.ok) { throw new Error(body.error || `HTTP ${res.status}`); }
       setOriginal(body);
