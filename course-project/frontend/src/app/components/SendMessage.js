@@ -26,8 +26,8 @@ export default function SendMessage() {
     return (
     <div className={styles.container}>
         <h2>Send Message</h2>
-        <label>UTORid:</label>
-        <input type="text" value={utorid} onChange={(e) => setUtorid(e.target.value)}/>
+        <label >UTORid:</label>
+        <input className={styles.textInput} type="text" value={utorid} onChange={(e) => setUtorid(e.target.value)}/>
         <FeedBackMessage error={error || result.error} message={error || result.message}/>
         <textarea
         className={styles.input}
