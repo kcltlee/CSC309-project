@@ -171,11 +171,13 @@ export default function PromotionsPage() {
     setRateMin('');
     setMinSpendMin('');
     setPointsMin('');
+    setSortDir('');
+    setSortField('');
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
     fetchPromotions(1, true); // immediate refetch so one click clears
-    router.replace('/');
+    router.replace('/promotion');
   };
 
   // refetch whenever any applied filter or type changes OR version increments
@@ -342,7 +344,7 @@ export default function PromotionsPage() {
             type="button"
             className={styles.searchBtn}
             style={{ fontWeight: sortField === 'start' ? 'bold' : 'normal' }}
-            onClick={() => setSortField(f => f === 'start' ? '' : 'start')}
+            onClick={() => {setSortField(f => f === 'start' ? '' : 'start')}}
           >
             Start Date {sortField === 'start' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
           </button>
