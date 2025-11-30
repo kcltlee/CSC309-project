@@ -150,13 +150,13 @@ export default function PromotionsPage() {
     fetchPromotions(1, true); // immediate refetch so one click clears
   };
 
-  // Refetch whenever any applied filter or type changes OR version increments
+  // refetch whenever any applied filter or type changes OR version increments
   useEffect(() => {
     if (!backendURL) return;
     fetchPromotions(1, true);
   }, [appliedSearchTerm, appliedStartAfter, appliedEndBefore, appliedRateMin, appliedMinSpendMin, appliedPointsMin, typeFilter, backendURL, filtersVersion]);
 
-  // Initial load only
+  // initial load
   useEffect(() => {
     setPromotions([]);
     setPage(1);

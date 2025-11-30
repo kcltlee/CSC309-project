@@ -8,13 +8,12 @@ import styles from '../event.module.css';
 
 export default function UpdateEvent() {
   const [eventId, setEventId] = useState('');
-  // Editable (blank => unchanged)
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [capacity, setCapacity] = useState(''); // blank => unlimited / unchanged
+  const [capacity, setCapacity] = useState(''); 
   const [points, setPoints] = useState('');
 
   const [original, setOriginal] = useState(null);
@@ -33,8 +32,6 @@ export default function UpdateEvent() {
     if (!Number.isInteger(idNum)) { setError(true); setMessage('Enter a numeric ID'); return; }
     try {
       setLoadingExisting(true);
-    //   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    //   if (!token) throw new Error('Not logged in');
       const res = await fetch(`${backend}/events/${idNum}`, {
         // headers: { Authorization: `Bearer ${token}` }
         credentials: 'include'
@@ -51,8 +48,9 @@ export default function UpdateEvent() {
   }
 
   async function handleSend() {
-    setMessage(''); setError(false);
-    if (!backend) { setError(true); setMessage('Backend URL not configured'); return; }
+    setMessage(''); 
+    setError(false);
+
     const idNum = Number(eventId);
     if (!Number.isInteger(idNum)) { setError(true); setMessage('Valid numeric ID required'); return; }
 
@@ -80,7 +78,7 @@ export default function UpdateEvent() {
     if (capacity !== '') {
       const c = Number(capacity);
       if (isNaN(c) || c <= 0) { setError(true); setMessage('Capacity must be positive'); return; }
-      payload.capacity = c; // leave undefined if blank (no change)
+      payload.capacity = c;
     }
 
     if (points !== '') {
@@ -92,16 +90,6 @@ export default function UpdateEvent() {
     if (Object.keys(payload).length === 0) {
       setError(true); setMessage('No changes provided');
       return;
-    }
-
-    // Basic temporal validation (optional future checks)
-    if (payload.startTime) {
-      const s = new Date(payload.startTime);
-      if (s <= new Date()) { setError(true); setMessage('Start must be in future'); return; }
-    }
-    if (payload.endTime) {
-      const e = new Date(payload.endTime);
-      if (e <= new Date()) { setError(true); setMessage('End must be in future'); return; }
     }
 
     try {
@@ -127,7 +115,8 @@ export default function UpdateEvent() {
       setMessage('Event updated');
       setTimeout(() => router.push('/event'), 800);
     } catch (e) {
-      setError(true); setMessage(e.message || 'Update failed');
+      setError(true); 
+      setMessage(e.message || 'Update failed');
     } finally {
       setSubmitting(false);
     }

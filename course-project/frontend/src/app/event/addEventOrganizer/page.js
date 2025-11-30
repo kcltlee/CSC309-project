@@ -26,14 +26,13 @@ export default function AddEventOrganizer() {
     const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 
-    // Fetch Event + Organizers
+    // fetch Event + Organizers
     const fetchEventOrganizer = useCallback(async (eventId) => {
         if (!eventId) return;
         setLoading(true);
         setError('');
         try {
             const res = await fetch(`${backendURL}/events/${eventId}`, {
-                // headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 credentials: 'include'
             });
             if (!res.ok) {
@@ -76,7 +75,7 @@ export default function AddEventOrganizer() {
             'Content-Type': 'application/json',
             // Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-          credentials: include,
+          credentials: 'include',
           body: JSON.stringify({ utorid: newOrganizerUtorid.trim() }),
         });
         let data = {};

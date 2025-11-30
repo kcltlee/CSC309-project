@@ -33,7 +33,7 @@ export default function CreatePromotion() {
             const url = `${backend}/promotions`;
             const normalizedType = type === 'one-time' ? 'onetime' : type;
             const toISO = (dt) => {
-              // datetime-local => ISO
+              // datetime local to ISO
               const d = new Date(dt);
               if (isNaN(d)) throw new Error('Invalid date/time');
               return d.toISOString();
@@ -67,7 +67,6 @@ export default function CreatePromotion() {
             }
             setError(false);
             setMessage('Create Promotion Successful!');
-            // optional: clear form
             setPromotionName('');
             setDescription('');
             setType('automatic');

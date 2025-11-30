@@ -11,7 +11,6 @@ export default function UpdatePromotion() {
 
   // Promotion id
   const [promotionId, setPromotionId] = useState('');
-  //  fields (blank means unchanged)
   const [promotionName, setPromotionName] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState(''); 
@@ -83,7 +82,7 @@ export default function UpdatePromotion() {
       setMessage('Valid numeric ID required');
       return;
     }
-    // Normalize type and convert dates
+    // normalize type and convert dates
     const normalizedType = type === 'one-time' ? 'onetime' : (type || undefined);
     const toISO = (dt) => dt ? new Date(dt).toISOString() : undefined;
     const options = {
