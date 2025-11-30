@@ -113,6 +113,7 @@ course-project/
 **backend/.env** (example)
 ```
 PORT=4000
+FRONTEND_URL="http://localhost:3000"
 JWT_SECRET=your_jwt_secret
 DATABASE_URL="file:./prisma/dev.db"
 SENDGRID_API_KEY=your_sendgrid_key
@@ -120,7 +121,7 @@ SENDGRID_API_KEY=your_sendgrid_key
 
 **frontend/.env** (example)
 ```
-NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+NEXT_PUBLIC_BACKEND_URL="http://localhost:4000"
 ```
 
 ---
