@@ -195,58 +195,129 @@ async function main() {
   const h = (hrs) => new Date(Date.now() + hrs * 60 * 60 * 1000);
 
   const promotions = [
-    {
-      id: 1,
-      name: 'Start of Summer Celebration',
-      description: 'A simple promotion',
-      type: 'automatic',
-      startTime: h(2),
-      endTime:   h(10),
-      minSpending: 50,
-      rate: 0.01,
-      points: 0
-    },
-    {
-      id: 2,
-      name: 'Midweek Booster',
-      description: 'Automatic light booster for midweek purchases',
-      type: 'automatic',
-      startTime: h(6),
-      endTime:   h(30),
-      minSpending: 20,
-      rate: 0.5,
-      points: 10
-    },
-    {
-      id: 3,
-      name: 'One-Time Welcome Drop',
-      description: 'Single-use welcome bonus',
-      type: 'onetime',
-      startTime: h(1),
-      endTime:   h(24),
-      points: 100
-    },
-    {
-      id: 4,
-      name: 'Weekend Surge',
-      description: 'Higher automatic rate for weekend spending',
-      type: 'automatic',
-      startTime: h(12),
-      endTime:   h(60),
-      minSpending: 10,
-      rate: 2.0,
-      points: 25
-    },
-    {
-      id: 5,
-      name: 'Exam Relief One-Time',
-      description: 'One-time relief reward during exam period',
-      type: 'onetime',
-      startTime: h(4),
-      endTime:   h(48),
-      points: 75
-    }
-  ];
+  {
+    id: 1,
+    name: 'Start of Summer Celebration',
+    description: 'A simple promotion',
+    type: 'automatic',
+    startTime: h(2),
+    endTime:   h(10),
+    minSpending: 50,
+    rate: 0.01,
+    points: 0
+  },
+  {
+    id: 2,
+    name: 'Midweek Booster',
+    description: 'Automatic light booster for midweek purchases',
+    type: 'automatic',
+    startTime: h(6),
+    endTime:   h(30),
+    minSpending: 20,
+    rate: 0.5,
+    points: 10
+  },
+  {
+    id: 3,
+    name: 'One-Time Welcome Drop',
+    description: 'Single-use welcome bonus',
+    type: 'onetime',
+    startTime: h(1),
+    endTime:   h(24),
+    points: 100
+  },
+  {
+    id: 4,
+    name: 'Weekend Surge',
+    description: 'Higher automatic rate for weekend spending',
+    type: 'automatic',
+    startTime: h(12),
+    endTime:   h(60),
+    minSpending: 10,
+    rate: 2.0,
+    points: 25
+  },
+  {
+    id: 5,
+    name: 'Exam Relief One-Time',
+    description: 'One-time relief reward during exam period',
+    type: 'onetime',
+    startTime: h(4),
+    endTime:   h(48),
+    points: 75
+  },
+  {
+    id: 6,
+    name: 'Holiday Points Blast',
+    description: 'Earn extra points during holidays',
+    type: 'automatic',
+    startTime: h(24),
+    endTime: h(72),
+    minSpending: 30,
+    rate: 1.5,
+    points: 40
+  },
+  {
+    id: 7,
+    name: 'Flash Sale Bonus',
+    description: 'Limited time flash sale bonus points',
+    type: 'onetime',
+    startTime: h(8),
+    endTime: h(12),
+    points: 60
+  },
+  {
+    id: 8,
+    name: 'Loyalty Appreciation',
+    description: 'Reward for loyal customers',
+    type: 'automatic',
+    startTime: h(0),
+    endTime: h(120),
+    minSpending: 100,
+    rate: 0.75,
+    points: 80
+  },
+  {
+    id: 9,
+    name: 'Back to School',
+    description: 'Special for back to school season',
+    type: 'automatic',
+    startTime: h(48),
+    endTime: h(96),
+    minSpending: 15,
+    rate: 1.2,
+    points: 30
+  },
+  {
+    id: 10,
+    name: 'Refer a Friend',
+    description: 'Get points for referring a friend',
+    type: 'onetime',
+    startTime: h(0),
+    endTime: h(240),
+    points: 120
+  },
+  {
+    id: 11,
+    name: 'Winter Warm-Up',
+    description: 'Winter promotion for purchases over $25',
+    type: 'automatic',
+    startTime: h(72),
+    endTime: h(144),
+    minSpending: 25,
+    rate: 1.8,
+    points: 55
+  },
+  {
+    id: 12,
+    name: 'Spring Fling',
+    description: 'Celebrate spring with bonus points',
+    type: 'onetime',
+    startTime: h(36),
+    endTime: h(60),
+    points: 90
+  }
+];
 
   for (const p of promotions) {
     await prisma.promotion.upsert({

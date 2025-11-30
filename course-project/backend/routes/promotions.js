@@ -109,104 +109,122 @@ router.post('/', jwtAuth, async (req, res) => {
 
 // list promotions
 router.get('/', jwtAuth, async (req, res) => {
-
     // get query parameters e.g. /promotions?page=2&limit=20&type=automatic
     const q = req.query || {};
     const page = parseInt(q.page) || 1;
-
-    // error checks if page or limit invalid
-    if (page <= 0) {
-        return res.status(400).json({ error: "invalid page" });
-    }
-    if (q.limit !== undefined && parseInt(q.limit) <= 0) {
-        return res.status(400).json({ error: "invalid limit" });
-    }
-    // limit = number of promotions per page, between 1-100, default 10 if not provided
+    if (page <= 0) return res.status(400).json({ error: "invalid page" });
     const limit = Math.max(1, Math.min(100, parseInt(q.limit) || 10));
-
-    // num promotions to skip before starting current page
     const skip = (page - 1) * limit;
 
-    // prisma object
-    const where = {};
-
-    // /promotions?name=summer: return names that contain string case-insensitive
-    if (q.name) where.name = { contains: String(q.name), mode: 'insensitive' };
-
-    // type
-    if (q.type) {
-        if (q.type !== 'automatic' && q.type !== 'one-time') return res.status(400).json({ error: "invalid payload" });
-        if (q.type === 'one-time') {
-            where.type = 'onetime';
-        } else {
-            where.type = q.type;
+    // Build filters
+    const allowedKeys = [
+        'id', 'name', 'type', 'minSpending', 'rate', 'points',
+        'startAfter', 'endBefore', 'rateMin', 'minSpendingMin', 'pointsMin'
+    ];
+    const filters = {};
+    for (const key of allowedKeys) {
+        if (q[key] !== undefined && q[key] !== '') {
+            filters[key] = q[key];
         }
-        
     }
 
+    // Prisma where object
+    const where = {};
+
+    // Name filter 
+    if (filters.name) {
+        where.name = { contains: String(filters.name), mode: 'insensitive' };
+    }
+
+    // Type filter
+    if (filters.type) {
+        if (filters.type === 'one-time') {
+            where.type = 'onetime';
+        } else if (filters.type === 'automatic') {
+            where.type = 'automatic';
+        }
+    }
+
+    // Numeric filters
+    if (filters.rateMin) {
+        where.rate = { gte: Number(filters.rateMin) };
+    }
+    if (filters.minSpendingMin) {
+        where.minSpending = { gte: Number(filters.minSpendingMin) };
+    }
+    if (filters.pointsMin) {
+        where.points = { gte: Number(filters.pointsMin) };
+    }
+
+    // Date filters
+    if (filters.startAfter) {
+        const after = new Date(filters.startAfter);
+        if (!isNaN(after.getTime())) {
+            where.startTime = { gt: after };
+        }
+    }
+    if (filters.endBefore) {
+        const before = new Date(filters.endBefore);
+        if (!isNaN(before.getTime())) {
+            where.endTime = { lt: before };
+        }
+    }
+
+    // Role-based filtering
     const now = new Date();
-
-    if (req.user.role === 'manager' || req.user.role === 'superuser') {
-        if (q.started !== undefined && q.ended !== undefined) {
-            return res.status(400).json({ error: "invalid payload" });
-        }
-        // for filtering: started=true/false
-        if (q.started !== undefined) {
-            const startedFlag = String(q.started) === 'true';
-            where.startTime = startedFlag ? { lte: now } : { gt: now };
-        }
-
-        // for filtering: ended=true/false
-        if (q.ended !== undefined) {
-            const endedFlag = String(q.ended) === 'true';
-            where.endTime = endedFlag ? { lte: now } : { gt: now };
-        }
-    } else {
-        // regular user: only active promotions (started && not ended)
+    if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
         where.startTime = { lte: now };
         where.endTime = { gt: now };
     }
 
-    const [count, promos] = await Promise.all([
-        prisma.promotion.count({ where }),
-        prisma.promotion.findMany({
-            where,
-            skip,
-            take: limit,
-            orderBy: { startTime: 'desc' }
-        })
-    ]);
+    try {
+        const [count, promos] = await Promise.all([
+            prisma.promotion.count({ where }),
+            prisma.promotion.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { startTime: 'desc' }
+            })
+        ]);
 
-    // prepare list results (omit description)
-    const results = [];
-    for (const p of promos) {
-        // for regular users, exclude promotions user already used (if relation exists)
-        if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
-            try {
-                const used = await prisma.user.findFirst({
-                    where: { id: req.user.id, promotions: { some: { id: p.id } } } // req.user.id from jwtAuth, route protected by jwtAuth
-                });
-                if (used) continue;
-            } catch (e) {
-                // ignore if relation not present
+        // Prepare results (omit description for regular users)
+        const results = [];
+        for (const p of promos) {
+            if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
+                try {
+                    const used = await prisma.user.findFirst({
+                        where: { id: req.user.id, promotions: { some: { id: p.id } } }
+                    });
+                    if (used) continue;
+                } catch (e) {}
             }
+            const item = {
+                id: p.id,
+                name: p.name,
+                type: p.type,
+                endTime: p.endTime,
+                minSpending: p.minSpending,
+                rate: p.rate,
+                points: p.points
+            };
+            if (req.user.role === 'manager' || req.user.role === 'superuser') {
+                item.startTime = p.startTime;
+            }
+            results.push(item);
         }
-        const item = {
-            id: p.id,
-            name: p.name,
-            type: p.type,
-            endTime: p.endTime,
-            minSpending: p.minSpending,
-            rate: p.rate,
-            points: p.points
-        };
-        if (req.user.role === 'manager' || req.user.role === 'superuser') {
-            item.startTime = p.startTime;
-        }
-        results.push(item);
-    }
 
-    return res.json({ count: results.length, results });
+        res.json({
+            count,
+            results,
+            page,
+            limit,
+            hasMore: results.length === limit
+        });
+    } catch (err) {
+        console.error('promotion list error', err);
+        res.status(500).json({ error: 'internal server error' });
+    }
 });
 
 // get single promotion

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styles from './page.module.css';
 import PromotionSearchBar from '../components/PromotionSearchBar'
 import PrimaryActionDropDownButton from '../components/PrimaryActionDropDownButton';
@@ -8,123 +8,76 @@ import PromotionCard from '../components/PromotionCard'
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function PromotionsPage() {
+  const PAGELIMIT = 10;
   const {user, token, initializing, currentInterface} = useAuth();
   const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-  const scrollRef = useRef(null);
-  
-  const [promotions, setPromotions] = useState([]);
+  const scrollRef = useRef();
 
   // search params
   const searchParams = useSearchParams();
   const router = useRouter();
+  const filter = Object.fromEntries(searchParams.entries());
 
-  // loading and error and message
-  const [loading, setLoading] = useState(false);
+  // state
+  const [promotions, setPromotions] = useState([]);
+  const [page, setPage] = useState(1);
+  const [reachedEnd, setReachedEnd] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState('');
 
-  // pagination
-  const [page, setPage] = useState(1);
-  const [reachedEnd, setReachedEnd] = useState(false);
-
   // search bar
-  const [searchName, setSearchName] = useState(''); 
-
-  // filtering
-  const [typeFilter, setTypeFilter] = useState('');
-  const [startAfter, setStartAfter] = useState('');       
-  const [endBefore, setEndBefore] = useState('');        
-  const [rateMin, setRateMin] = useState('');             
-  const [minSpendMin, setMinSpendMin] = useState('');    
-  const [pointsMin, setPointsMin] = useState('');       
-
-  // sorting
-  const [sortField, setSortField] = useState(''); // '', 'start', 'end'
-  const [sortDir, setSortDir] = useState('asc'); // 'asc' or 'desc'
+  const [searchName, setSearchName] = useState(filter.searchName || ''); 
+  const [typeFilter, setTypeFilter] = useState(filter.typeFilter || '');
+  const [startAfter, setStartAfter] = useState(filter.startAfter || '');       
+  const [endBefore, setEndBefore] = useState(filter.endBefore || '');        
+  const [rateMin, setRateMin] = useState(filter.rateMin || '');             
+  const [minSpendMin, setMinSpendMin] = useState(filter.minSpendMin || '');    
+  const [pointsMin, setPointsMin] = useState(filter.pointsMin || '');       
+  const [sortField, setSortField] = useState(filter.sortField || ''); // start, end, ''
+  const [sortDir, setSortDir] = useState(filter.sortDir || 'asc'); // asc or desc
 
   // redirect unsigned user
   useEffect(() => {
-      if (!initializing && !user) {
-        router.replace('/login');
-      }
-  }, [initializing])
+    if (!initializing && !user) {
+      router.replace('/login');
+    }
+  }, [initializing, user, router]);
 
-  // useCallback memoizes the function - React keeps the same reference between renders unless dependencies change
-  const fetchPromotions = useCallback(async (targetPage = 1, replace = false) => {
-    // Allow replace fetch even if a previous fetch is in-flight (avoid empty list on double Apply)
-    if (loading && !replace) return;
-
-    const filter = Object.fromEntries(searchParams.entries());
-    const { searchName,
-            startAfter, 
-            endBefore, 
-            rateMin,
-            minSpendMin,
-            pointsMin,
-            typeFilter } = filter;
-  
-    setSortDir(filter?.sortDir);
-    setSortField(filter?.sortField);
-
+  // Load promotions from backend with filters and pagination
+  const loadPromotions = async (targetPage = 1, replace = false) => {
     setLoading(true);
     setError(false);
 
+    // Build query params
+    const params = new URLSearchParams();
+    if (searchName) params.set('name', searchName);
+    if (typeFilter) params.set('type', typeFilter);
+    if (startAfter) params.set('startAfter', startAfter);
+    if (endBefore) params.set('endBefore', endBefore);
+    if (rateMin) params.set('rateMin', rateMin);
+    if (minSpendMin) params.set('minSpendingMin', minSpendMin);
+    if (pointsMin) params.set('pointsMin', pointsMin);
+    if (sortField) params.set('sortField', sortField);
+    if (sortDir) params.set('sortDir', sortDir);
+    params.set('page', targetPage);
+    params.set('limit', PAGELIMIT);
+
     try {
-     if (!backendURL) throw new Error('Missing backend URL');
-     const res = await fetch(`${backendURL}/promotions`, {
-       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-       credentials: 'include'
-     });
+      const res = await fetch(`${backendURL}/promotions?${params.toString()}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        credentials: 'include'
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      let list = data.results || [];
-  
-      // Filters
-      if (searchName) {
-        const term = searchName.toLowerCase();
-        list = list.filter(p => p.name && p.name.toLowerCase().includes(term));
+      const batch = data.results || [];
+      if (replace) {
+        setPromotions(batch);
+      } else {
+        setPromotions(prev => [...prev, ...batch]);
       }
-
-      if (typeFilter) {
-        const tf = typeFilter === 'one-time' ? 'onetime' : typeFilter;
-        list = list.filter(p => p.type === tf);
-      }
-
-      if (startAfter) {
-        const dayEnd = new Date(`${startAfter}T23:59:59.999`).toISOString();
-        if (!isNaN(dayEnd)) list = list.filter(p => p.startTime && new Date(p.startTime) > dayEnd);
-      }
-
-      if (endBefore) {
-        const cutoffStart = new Date(`${endBefore}T00:00:00.000`).toISOString();
-        if (!isNaN(cutoffStart)) list = list.filter(p => p.endTime && new Date(p.endTime) < cutoffStart);
-      }
-
-      if (rateMin) {
-        const rMin = Number(rateMin);
-        list = list.filter(p => p.rate != null && Number(p.rate) >= rMin);
-      }
-
-      if (minSpendMin) {
-        const msMin = Number(minSpendMin);
-        list = list.filter(p => p.minSpending != null && Number(p.minSpending) >= msMin);
-      }
-      if (pointsMin) {
-        const ptMin = Number(pointsMin);
-        list = list.filter(p => p.points != null && Number(p.points) >= ptMin);
-      }
-
-      const startIdx = (targetPage - 1) * 10;
-      const batch = list.slice(startIdx, startIdx + 10);
-      // De-dup when appending to avoid duplicate keys
-      setPromotions(prev => {
-        const base = replace ? [] : prev;
-        const seen = new Set(base.map(p => p.id));
-        const unique = batch.filter(p => !seen.has(p.id));
-        return replace ? unique : [...base, ...unique];
-      });
-      if (batch.length < 10 || startIdx + 10 >= list.length) setReachedEnd(true);
+      if (batch.length < PAGELIMIT) setReachedEnd(true);
       setPage(targetPage + 1);
     } catch (e) {
       setError(true);
@@ -132,37 +85,28 @@ export default function PromotionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [backendURL, token, searchParams]);
+  };
 
+  // Trigger search/filter
   const triggerSearch = () => {
-
-    const filters = {
-        searchName: searchName.trim(),
-        startAfter: startAfter,
-        endBefore: endBefore, 
-        rateMin: rateMin, 
-        minSpendMin: minSpendMin,
-        pointsMin: pointsMin,
-        typeFilter: typeFilter,
-        sortDir: sortDir,
-        sortField: sortField
-    };
-
     const params = new URLSearchParams();
-
-    // clean filters
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== "" && value !== null && value !== undefined) {
-        params.set(key, value);
-      }
-    });
-
+    if (searchName) params.set('searchName', searchName);
+    if (typeFilter) params.set('typeFilter', typeFilter);
+    if (startAfter) params.set('startAfter', startAfter);
+    if (endBefore) params.set('endBefore', endBefore);
+    if (rateMin) params.set('rateMin', rateMin);
+    if (minSpendMin) params.set('minSpendMin', minSpendMin);
+    if (pointsMin) params.set('pointsMin', pointsMin);
+    if (sortField) params.set('sortField', sortField);
+    if (sortDir) params.set('sortDir', sortDir);
     router.replace(`?${params.toString()}`);
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
+    loadPromotions(1, true);
   };
 
+  // Clear filters
   const clearFilters = () => {
     setSearchName('');
     setTypeFilter('');
@@ -176,61 +120,34 @@ export default function PromotionsPage() {
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
-    fetchPromotions(1, true); // immediate refetch so one click clears
     router.replace('/promotion');
+    loadPromotions(1, true);
   };
 
-  // refetch whenever any applied filter or type changes OR version increments
-  useEffect(() => {
-    if (!backendURL) return;
-    fetchPromotions(1, true);
-  }, [searchParams]);
-
-  // initial load
+  // Load on filter change
   useEffect(() => {
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
-    fetchPromotions(1, true);
-  }, []); 
+    loadPromotions(1, true);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [searchParams, user]);
 
+  // Infinite scroll handler
   const handleScroll = (e) => {
-    const t = e.target;
-    const atBottom = t.scrollTop + t.clientHeight >= t.scrollHeight - 80;
-    if (atBottom && !reachedEnd && !loading) {
-      fetchPromotions(page, false);
+    const bottomReached = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 50;
+    if (bottomReached && !loading && !reachedEnd) {
+      loadPromotions(page, false);
     }
   };
 
-  const handleDelete = async (id) => {
-      if (!token) {return; }
-      if (!backendURL) { setError(true); setMessage('Missing backend URL'); return; }
-      if (!window.confirm(`Delete promotion #${id}?`)) return;
-
-      try {
-        const url = `${backendURL}/promotions/${id}`;
-        const res = await fetch(url, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: 'include'
-        });
-
-        if (res.status === 204) {
-          setPromotions(prev => prev.filter(p => p.id !== id));
-          return;
-        }
-        const ct = res.headers.get('content-type') || '';
-        let body = ct.includes('application/json') ? await res.json() : { error: await res.text() };
-        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
-        setPromotions(prev => prev.filter(p => p.id !== id));
-      } catch (e) {
-        setError(true);
-        setMessage(e.message || String(e));
-      }
-    };
-
-  // Sorting logic
+  // Sorting logic (client-side for display only)
   const sortedPromotions = React.useMemo(() => {
+    const hasFilters =
+      searchName || typeFilter || startAfter || endBefore || rateMin || minSpendMin || pointsMin;
+    if (!sortField && !hasFilters) {
+      return [...promotions].sort((a, b) => b.id - a.id);
+    }
     if (!sortField) return promotions;
     const sorted = [...promotions].sort((a, b) => {
       let av, bv;
@@ -244,19 +161,43 @@ export default function PromotionsPage() {
       return sortDir === 'asc' ? av - bv : bv - av;
     });
     return sorted;
-  }, [promotions, sortField, sortDir]);
+  }, [promotions, sortField, sortDir, searchName, typeFilter, startAfter, endBefore, rateMin, minSpendMin, pointsMin]);
+
+  // Delete handler
+  const handleDelete = async (id) => {
+    if (!token) return;
+    if (!backendURL) { setError(true); setMessage('Missing backend URL'); return; }
+    if (!window.confirm(`Delete promotion #${id}?`)) return;
+    try {
+      const url = `${backendURL}/promotions/${id}`;
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include'
+      });
+      if (res.status === 204) {
+        setPromotions(prev => prev.filter(p => p.id !== id));
+        return;
+      }
+      const ct = res.headers.get('content-type') || '';
+      let body = ct.includes('application/json') ? await res.json() : { error: await res.text() };
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+      setPromotions(prev => prev.filter(p => p.id !== id));
+    } catch (e) {
+      setError(true);
+      setMessage(e.message || String(e));
+    }
+  };
 
   return (
     <div className={styles.pageContainer}>
       <main>
         <h1>Promotions</h1>
-
         <PromotionSearchBar
           searchName={searchName}
           setSearchName={setSearchName}
           onSearch={triggerSearch}
         />
-
         <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
           {/* Type filter */}
           <div className={styles.filterItem}>
@@ -264,7 +205,7 @@ export default function PromotionsPage() {
             {(() => {
               const currentText = !typeFilter ? 'Any' : (typeFilter === 'automatic' ? 'Automatic' : 'One-time');
               const opts = [
-                { text: currentText, action: () => { /* primary click keeps current */ } },
+                { text: currentText, action: () => {} },
                 { text: 'Any', action: () => { setTypeFilter(''); setPage(1); setReachedEnd(false) } },
                 { text: 'Automatic', action: () => { setTypeFilter('automatic'); setPage(1); setReachedEnd(false)} },
                 { text: 'One-time', action: () => { setTypeFilter('one-time'); setPage(1); setReachedEnd(false) } },
@@ -277,8 +218,7 @@ export default function PromotionsPage() {
               );
             })()}
           </div>
-
-          {/* filter inputs (commit on Search click) */}
+          {/* filter inputs */}
           <label style={{ fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <span>Start after:</span>
             <input
@@ -336,7 +276,6 @@ export default function PromotionsPage() {
             </button>
           </div>
         </div>
-
         {/* Sorting button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 14 }}>Sort by:</span>
@@ -365,7 +304,6 @@ export default function PromotionsPage() {
             {sortField ? (sortDir === 'asc' ? 'Asc' : 'Desc') : 'Asc/Desc'}
           </button>
         </div>
-
         <div className={styles.resultsContainer}>
           <div className={styles.resultsCard}>
             <div ref={scrollRef} className={styles.promotionList} onScroll={handleScroll}>
@@ -381,12 +319,12 @@ export default function PromotionsPage() {
                 />
               ))}
               {reachedEnd && sortedPromotions.length > 0 && (
-                <div style={{ padding: 8, opacity: 0.6 }} />
+                <div style={{ padding: 8, opacity: 0.6 }}>End</div>
               )}
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
