@@ -128,15 +128,15 @@ router.get('/', jwtAuth, async (req, res) => {
         }
     }
 
-    // Prisma where object
+    // prisma where object
     const where = {};
 
-    // Name filter 
+    // name filter 
     if (filters.name) {
         where.name = { contains: String(filters.name), mode: 'insensitive' };
     }
 
-    // Type filter
+    // type filter
     if (filters.type) {
         if (filters.type === 'one-time') {
             where.type = 'onetime';
@@ -145,7 +145,7 @@ router.get('/', jwtAuth, async (req, res) => {
         }
     }
 
-    // Numeric filters
+    // numeric filters
     if (filters.rateMin) {
         where.rate = { gte: Number(filters.rateMin) };
     }
@@ -156,7 +156,7 @@ router.get('/', jwtAuth, async (req, res) => {
         where.points = { gte: Number(filters.pointsMin) };
     }
 
-    // Date filters
+    // date filters
     if (filters.startAfter) {
         const after = new Date(filters.startAfter);
         if (!isNaN(after.getTime())) {
@@ -170,7 +170,7 @@ router.get('/', jwtAuth, async (req, res) => {
         }
     }
 
-    // Role-based filtering
+    // role based filtering
     const now = new Date();
     if (req.user.role !== 'manager' && req.user.role !== 'superuser') {
         where.startTime = { lte: now };

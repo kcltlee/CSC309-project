@@ -44,12 +44,12 @@ export default function PromotionsPage() {
     }
   }, [initializing, user, router]);
 
-  // Load promotions from backend with filters and pagination
+  // load promotions from backend with filters and pagination
   const loadPromotions = async (targetPage = 1, replace = false) => {
     setLoading(true);
     setError(false);
 
-    // Build query params
+    // build query params
     const params = new URLSearchParams();
     if (searchName) params.set('name', searchName);
     if (typeFilter) params.set('type', typeFilter);
@@ -87,7 +87,7 @@ export default function PromotionsPage() {
     }
   };
 
-  // Trigger search/filter
+  // trigger search/filter
   const triggerSearch = () => {
     const params = new URLSearchParams();
     if (searchName) params.set('searchName', searchName);
@@ -106,7 +106,7 @@ export default function PromotionsPage() {
     loadPromotions(1, true);
   };
 
-  // Clear filters
+  // clear filters
   const clearFilters = () => {
     setSearchName('');
     setTypeFilter('');
@@ -124,7 +124,7 @@ export default function PromotionsPage() {
     loadPromotions(1, true);
   };
 
-  // Load on filter change
+  //lLoad on filter change
   useEffect(() => {
     setPromotions([]);
     setPage(1);
@@ -133,7 +133,7 @@ export default function PromotionsPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [searchParams, user]);
 
-  // Infinite scroll handler
+  // infinite scroll handler
   const handleScroll = (e) => {
     const bottomReached = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 50;
     if (bottomReached && !loading && !reachedEnd) {
@@ -141,7 +141,7 @@ export default function PromotionsPage() {
     }
   };
 
-  // Sorting logic (client-side for display only)
+  // sorting logic (client-side for display only)
   const sortedPromotions = React.useMemo(() => {
     const hasFilters =
       searchName || typeFilter || startAfter || endBefore || rateMin || minSpendMin || pointsMin;
@@ -163,7 +163,7 @@ export default function PromotionsPage() {
     return sorted;
   }, [promotions, sortField, sortDir, searchName, typeFilter, startAfter, endBefore, rateMin, minSpendMin, pointsMin]);
 
-  // Delete handler
+  // delete handler
   const handleDelete = async (id) => {
     if (!token) return;
     if (!backendURL) { setError(true); setMessage('Missing backend URL'); return; }
