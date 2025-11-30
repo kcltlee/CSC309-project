@@ -1,12 +1,13 @@
 .container {
     display: flex;
+    width: 100%;
     gap: 8px;
     overflow-x: auto;
     align-items: center;
-    justify-content: center;
     width: 95%;
     scrollbar-width: none;
-    min-height: 50px;  
+    padding-bottom: 4px;
+    margin-top: 8px;
 }
 
 .label {
