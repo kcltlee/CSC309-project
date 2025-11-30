@@ -12,7 +12,7 @@ const storeNotification = async (utorid, message) => {
     if (!user) {
         throw new Error("User does not exist.");
     }
-
+    
     const result = await prisma.Notification.create({ 
         data: {utorid: utorid, message: message, time: new Date()}
     })

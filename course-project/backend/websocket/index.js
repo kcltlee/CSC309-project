@@ -108,7 +108,7 @@ function initWebSocket(server) {
         }
 
           try {
-              await notify(ws.user.utorid, utorid, message);
+              await notify(utorid, message, ws.user.utorid);
               ws.send(JSON.stringify({ sent: true}));
           }
           catch (err) {
@@ -137,12 +137,13 @@ function initWebSocket(server) {
 }
 
 // sends a notification to a user
-async function notify(sender, utorid, message) {
+async function notify(utorid, message, sender) {
 
     const ws = clients.get(utorid);
+    const fullMessage = sender ? `${sender}: ${message}` : message;
 
     // store in database
-    const notification = await storeNotification(utorid, `${sender}: ${message}`);
+    const notification = await storeNotification(utorid, fullMessage);
 
     // send directly if user is online
     if (ws && ws.readyState === WebSocket.OPEN) {
