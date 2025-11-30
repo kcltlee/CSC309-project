@@ -5,12 +5,10 @@ import TransactionCard from "@/app/components/TransactionCard";
 import { useRouter, useSearchParams } from "next/navigation";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
-import { useNotification } from "@/context/NotificationContext";
 
 export default function Adjust() {
 
     const { user, currentInterface, initializing } = useAuth();
-    const { notify } = useNotification();
     const router = useRouter();
     const searchParams = useSearchParams();
     const transactionId = searchParams.get("transactionId") || "";
@@ -100,7 +98,6 @@ export default function Adjust() {
                 else {
                     setMessage(`ID${result.id}: Adjustment successfully created!`);
                 }
-                notify(utorid, `ID${result.id}: Adjusted Transaction ${transactionId} by ${result.amount} pts.`);
             });
         })
         .catch(err => {

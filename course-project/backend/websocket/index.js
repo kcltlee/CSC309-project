@@ -2,6 +2,9 @@ const WebSocket = require("ws");
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken'); 
+require('dotenv').config(); 
+const JWT_SECRET = process.env.JWT_SECRET; 
 
 // connected clients
 const clients = new Map();
@@ -16,13 +19,72 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 // Initialize WebSocket server
 function initWebSocket(server) {
-  wss = new WebSocket.Server({ server });
+
+  // verify user before connecting to ws
+  wss = new WebSocket.Server({ noServer: true });
+  
+  server.on("upgrade", async (req, socket, head) => {
+      const searchParams = new URL(req.url, FRONTEND_URL).searchParams;
+      const utorid = searchParams.get("utorid");
+
+      try {
+
+         // reject unknown origins
+        const origin = req.headers.origin;
+        if (origin !== FRONTEND_URL) {
+          throw new Error('403 Forbidden');
+        }
+
+        // pasrse cookies to get jwt token
+        const cookieHeader = req.headers.cookie || "";
+        const cookies = Object.fromEntries(
+          cookieHeader.split(";").map(c => {
+            const [k, v] = c.trim().split("=");
+            return [k, v];
+          })
+        );
+
+        const token = cookies.jwt_token;
+
+        if (!token) {
+          throw new Error("Invalid token");
+        }
+
+        // check validity of token
+        const user = await new Promise((resolve, reject) => jwt.verify(token, JWT_SECRET, (err, userData) => {
+           if (err) return reject(new Error("Invalid or expired token"));
+
+          prisma.user.findUnique({ where: { id: userData.id } })
+          .then(user => {
+            if (!user) return reject(new Error("User not found"));
+            resolve(user);
+          })
+          .catch(err => reject(err));
+        }));
+
+        // check intended user
+        if (user.utorid !== utorid) {
+            throw new Error('utorid does not match credentials');
+        }
+
+        // upgrade to ws connection
+        wss.handleUpgrade(req, socket, head, ws => {
+          ws.user = user; 
+          wss.emit("connection", ws, req);
+        });
+
+      } 
+
+      catch (err) {
+          socket.write(`HTTP/1.1 401 Unauthorized \r\n\r\n`);
+          socket.destroy();
+      }
+  });
 
   wss.on("connection", async (ws, req) => {
 
-    const utorid = new URL(req.url, FRONTEND_URL).searchParams.get("utorid");
-
     // add client connected clients map
+    const utorid = ws.user.utorid;
     if (utorid) {
       clients.set(utorid, ws);
       console.log(`${utorid} connected via WebSocket`);
@@ -36,10 +98,17 @@ function initWebSocket(server) {
     ws.on("message", async (data) => {
       const { utorid, message, clear, view, id } = JSON.parse(data);
 
-      // notify another user
+      // send message to another user
       if (message) {
+
+        if (ws.user.role === 'regular') {
+            console.log(ws.user);
+            ws.send(JSON.stringify({ error: 'Regular users cannot send messages.'}));
+            return;
+        }
+
           try {
-              await notify(utorid, message);
+              await notify(ws.user.utorid, utorid, message);
               ws.send(JSON.stringify({ sent: true}));
           }
           catch (err) {
@@ -48,7 +117,7 @@ function initWebSocket(server) {
       }
 
       // clear notifications
-      else if (clear) {
+      if (clear) {
           clearNotifications(utorid);
       }
 
@@ -68,11 +137,12 @@ function initWebSocket(server) {
 }
 
 // sends a notification to a user
-async function notify(utorid, message) {
+async function notify(sender, utorid, message) {
+
     const ws = clients.get(utorid);
 
     // store in database
-    const notification = await storeNotification(utorid, message);
+    const notification = await storeNotification(utorid, `${sender}: ${message}`);
 
     // send directly if user is online
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -82,5 +152,5 @@ async function notify(utorid, message) {
 
 // Export functions
 module.exports = {
-  initWebSocket
+  initWebSocket, notify
 };

@@ -157,7 +157,7 @@ export default function TransactionsListPage() {
       scrollRef.current.scrollTop = 0;
     }
 
-  }, [searchParams, showAll, user]);
+  }, [searchParams, showAll, user ]);
 
   const handleScroll = (e) => {
     const bottomReached = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 50;

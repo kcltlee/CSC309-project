@@ -7,10 +7,8 @@ import { PrimaryButton } from '../../components/Button';
 import Notification from '../../components/Notification';
 import TextBox from '../../components/TextBox';
 import styles from '../event.module.css';
-import { useNotification } from '@/context/NotificationContext';
 
 export default function AwardGuestPage() {
-    const { notify } = useNotification();
     const router = useRouter();
     const searchParams = useSearchParams();
     const { user, initializing } = useAuth();
@@ -109,10 +107,8 @@ export default function AwardGuestPage() {
                 let successMessage;
                 if (utorid) {
                     successMessage = `Awarded ${data.awarded} points to UTORid: ${data.recipient}.`;
-                    notify(data.recipient, `ID${data.id}: Awarded ${data.awarded} pts from ${data.event.name}.`)
                 } else if (Array.isArray(data)) {
                     successMessage = `Awarded ${points} points to ${data.length} guests.`;
-                    data.map((award) => notify(award.recipient, `ID${award.id}: Awarded ${award.awarded} pts from ${award.event.name}.`));
                 } else {
                     successMessage = `Points awarded!`;
                 }

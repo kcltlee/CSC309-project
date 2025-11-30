@@ -13,7 +13,7 @@ const upload = multer({ dest: 'uploads/' });
 
 const jwtAuth = require('../middleware/jwtAuth');
 const { typeCheck, parseQuery } = require('../middleware/verifyInput');
-const { objectEnumValues } = require('@prisma/client/runtime/library');
+const { notify } = require('../websocket');
 
 const bcrypt = require('bcryptjs');
 
@@ -596,6 +596,7 @@ router.post('/:userId/transactions', jwtAuth, async (req, res) => {
     try {
 
         var result;
+        var recipientResult;
         const sender = req.user;
 
         await prisma.$transaction(async (db) => {
@@ -642,7 +643,7 @@ router.post('/:userId/transactions', jwtAuth, async (req, res) => {
             });
 
             // record receive transaction
-            await db.transaction.create({
+            recipientResult = await db.transaction.create({
                 data : {
                     utorid: recipient.utorid,
                     amount: amount,
@@ -660,6 +661,8 @@ router.post('/:userId/transactions', jwtAuth, async (req, res) => {
     } catch (err) {
         return res.status(400).json({ error: err.message});
     }
+
+    notify(recipientResult.utorid, `ID${recipientResult.id}: Received ${recipientResult.amount} pts from ${recipientResult.sender}.`);
 
     return res.status(201).json(result);
 

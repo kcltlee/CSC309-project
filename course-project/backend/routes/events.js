@@ -7,15 +7,12 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const jwtAuth = require('../middleware/jwtAuth');
-const { typeCheck, parseQuery } = require('../middleware/verifyInput');
+const { notify } = require('../websocket');
 
 // helpers 
 function isoToDate(s) {
     const d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
-}
-function isPositiveNumber(v) {
-    return v === null || (typeof v === 'number' && Number.isFinite(v) && v > 0);
 }
 function isNonNegativeInteger(v) {
     return Number.isInteger(v) && v >= 0;
@@ -983,6 +980,17 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
         });
     } catch (err) {
         return res.status(400).json({ error: err.message });
+    }
+
+    // notify users
+    if (utorid) {
+        notify(result.recipient, `ID${result.id}: Awarded ${result.awarded} pts from ${result.event.name}.`);
+    }
+
+    else {
+        for (const u of result) {
+            notify(u.recipient, `ID${u.id}: Awarded ${u.awarded} pts from ${u.event.name}.`);
+        }
     }
     
     return res.json(result);

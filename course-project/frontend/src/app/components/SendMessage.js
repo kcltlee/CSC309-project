@@ -2,12 +2,10 @@
 import React, { useState } from "react";
 import styles from './SendMessage.module.css';
 import { PrimaryButton } from "./Button";
-import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
 import FeedBackMessage from "./FeedbackMessage";
 
 export default function SendMessage() {
-    const { user } = useAuth();
     const { notify, result } = useNotification();
     const [ utorid, setUtorid ] = useState("");
     const [message, setMessage] = useState("");
@@ -20,7 +18,7 @@ export default function SendMessage() {
             setError("Enter a message.");
             return;
         }
-        await notify(utorid, `${user.utorid}: ${message}`);
+        await notify(utorid, message);
     };
 
     return (

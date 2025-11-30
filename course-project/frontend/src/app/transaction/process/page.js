@@ -2,14 +2,12 @@
 import { PrimaryButton } from "@/app/components/Button";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
-import { useNotification } from "@/context/NotificationContext";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Process() {
 
     const router = useRouter();
-    const { notify } = useNotification();
     const searchParams = useSearchParams();
     const defaultTransactionID = searchParams.get("transactionId") || "";
     const { user, loadUser, currentInterface, initializing } = useAuth();
@@ -54,7 +52,6 @@ export default function Process() {
                 }
                 else {
                     setMessage(`ID${result.id}: Redemption successfully processed!`);
-                    notify(result.utorid, `ID${result.id}: Redemption of ${result.redeemed} pts processed.`);
                     if (result.utorid === user.utorid) {
                         loadUser();
                     }

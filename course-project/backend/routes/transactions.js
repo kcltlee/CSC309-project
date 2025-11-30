@@ -10,6 +10,8 @@ const prisma = new PrismaClient();
 const jwtAuth = require('../middleware/jwtAuth');
 const { typeCheck, parseQuery } = require('../middleware/verifyInput');
 
+const { notify } = require('../websocket');
+
 router.route('/')
     .post(jwtAuth, async (req, res) => {
         if (req.user.role === 'regular') {
@@ -140,6 +142,15 @@ router.route('/')
             earned: new_transaction.earned,
             promotionIds: new_transaction.promotionIds.map(p => p.id) 
         };
+
+        // notify user
+        if (type === 'adjustment') {
+            notify(utorid, `ID${new_transaction.id}: Adjusted Transaction ${new_transaction.relatedId} by ${new_transaction.amount} pts.`);
+        }
+
+        else if (type === 'purchase') {
+             notify(utorid, `ID${new_transaction.id}: Earned ${new_transaction.amount} pts from purchase of $${new_transaction.spent}.`);
+        }
 
         return res.status(201).json(response);
     })
@@ -359,6 +370,9 @@ router.patch('/:transactionId/processed', jwtAuth, async (req, res) => {
     } catch (err) {
         return res.status(400).json({ error: err.message});
     }
+
+    // notify user
+    notify(result.utorid, `ID${result.id}: Redemption of ${result.redeemed} pts processed.`);
 
     return res.json(result);
 });

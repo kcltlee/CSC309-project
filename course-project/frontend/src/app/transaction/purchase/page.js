@@ -3,12 +3,10 @@ import { PrimaryButton } from "@/app/components/Button";
 import { useEffect, useState } from "react";
 import FeedBackMessage from "@/app/components/FeedbackMessage";
 import { useAuth } from "@/context/AuthContext";
-import { useNotification } from "@/context/NotificationContext";
 import { useRouter } from "next/navigation";
 export default function Purchase() {
 
     const router = useRouter();
-    const { notify } = useNotification();
     const { currentInterface, user, loadUser, initializing } = useAuth();
     const [ utorid, setUtorid ] = useState("");
     const [ spent, setSpent ] = useState("");
@@ -65,7 +63,6 @@ export default function Purchase() {
                 }
                 else {
                     setMessage(`ID${result.id}: Purchase successfully created!`);
-                    notify(result.utorid, `ID${result.id}: Earned ${result.amount} pts from purchase of $${result.spent}.`);
                     if (result.utorid === user.utorid) {
                         loadUser();
                     }
