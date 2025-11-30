@@ -5,13 +5,18 @@ import PromotionSearchBar from '../components/PromotionSearchBar'
 import PrimaryActionDropDownButton from '../components/PrimaryActionDropDownButton';
 import { useAuth } from '../../context/AuthContext'; 
 import PromotionCard from '../components/PromotionCard'
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function PromotionsPage() {
-  const {token, currentInterface} = useAuth();
-  const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const {user, token, initializing, currentInterface} = useAuth();
+  const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
   const scrollRef = useRef(null);
   
   const [promotions, setPromotions] = useState([]);
+
+  // search params
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // loading and error and message
   const [loading, setLoading] = useState(false);
@@ -24,7 +29,6 @@ export default function PromotionsPage() {
 
   // search bar
   const [searchName, setSearchName] = useState(''); 
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState(''); 
 
   // filtering
   const [typeFilter, setTypeFilter] = useState('');
@@ -34,27 +38,37 @@ export default function PromotionsPage() {
   const [minSpendMin, setMinSpendMin] = useState('');    
   const [pointsMin, setPointsMin] = useState('');       
 
-  //  applied filters
-  const [appliedStartAfter, setAppliedStartAfter] = useState('');
-  const [appliedEndBefore, setAppliedEndBefore] = useState('');
-  const [appliedRateMin, setAppliedRateMin] = useState('');
-  const [appliedMinSpendMin, setAppliedMinSpendMin] = useState('');
-  const [appliedPointsMin, setAppliedPointsMin] = useState('');
-
-  const [filtersVersion, setFiltersVersion] = useState(0); // force refetch trigger
-
   // sorting
   const [sortField, setSortField] = useState(''); // '', 'start', 'end'
   const [sortDir, setSortDir] = useState('asc'); // 'asc' or 'desc'
 
+  // redirect unsigned user
+  useEffect(() => {
+      if (!initializing && !user) {
+        router.replace('/login');
+      }
+  }, [initializing])
 
   // useCallback memoizes the function - React keeps the same reference between renders unless dependencies change
   const fetchPromotions = useCallback(async (targetPage = 1, replace = false) => {
     // Allow replace fetch even if a previous fetch is in-flight (avoid empty list on double Apply)
     if (loading && !replace) return;
 
+    const filter = Object.fromEntries(searchParams.entries());
+    const { searchName,
+            startAfter, 
+            endBefore, 
+            rateMin,
+            minSpendMin,
+            pointsMin,
+            typeFilter } = filter;
+  
+    setSortDir(filter?.sortDir);
+    setSortField(filter?.sortField);
+
     setLoading(true);
     setError(false);
+
     try {
      if (!backendURL) throw new Error('Missing backend URL');
      const res = await fetch(`${backendURL}/promotions`, {
@@ -65,34 +79,39 @@ export default function PromotionsPage() {
       if (!res.ok) throw new Error(data.error);
 
       let list = data.results || [];
-
+  
       // Filters
-      if (appliedSearchTerm) {
-        const term = appliedSearchTerm.toLowerCase();
+      if (searchName) {
+        const term = searchName.toLowerCase();
         list = list.filter(p => p.name && p.name.toLowerCase().includes(term));
       }
+
       if (typeFilter) {
         const tf = typeFilter === 'one-time' ? 'onetime' : typeFilter;
         list = list.filter(p => p.type === tf);
       }
-      if (appliedStartAfter) {
-        const dayEnd = new Date(`${appliedStartAfter}T23:59:59.999`);
+
+      if (startAfter) {
+        const dayEnd = new Date(`${startAfter}T23:59:59.999`).toISOString();
         if (!isNaN(dayEnd)) list = list.filter(p => p.startTime && new Date(p.startTime) > dayEnd);
       }
-      if (appliedEndBefore) {
-        const cutoffStart = new Date(`${appliedEndBefore}T00:00:00.000`);
+
+      if (endBefore) {
+        const cutoffStart = new Date(`${endBefore}T00:00:00.000`).toISOString();
         if (!isNaN(cutoffStart)) list = list.filter(p => p.endTime && new Date(p.endTime) < cutoffStart);
       }
-      if (appliedRateMin !== '') {
-        const rMin = Number(appliedRateMin);
+
+      if (rateMin) {
+        const rMin = Number(rateMin);
         list = list.filter(p => p.rate != null && Number(p.rate) >= rMin);
       }
-      if (appliedMinSpendMin !== '') {
-        const msMin = Number(appliedMinSpendMin);
+
+      if (minSpendMin) {
+        const msMin = Number(minSpendMin);
         list = list.filter(p => p.minSpending != null && Number(p.minSpending) >= msMin);
       }
-      if (appliedPointsMin !== '') {
-        const ptMin = Number(appliedPointsMin);
+      if (pointsMin) {
+        const ptMin = Number(pointsMin);
         list = list.filter(p => p.points != null && Number(p.points) >= ptMin);
       }
 
@@ -113,19 +132,35 @@ export default function PromotionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [backendURL, token, typeFilter, appliedSearchTerm, appliedStartAfter, appliedEndBefore, appliedRateMin, appliedMinSpendMin, appliedPointsMin, loading]);
+  }, [backendURL, token, searchParams]);
 
   const triggerSearch = () => {
-    setAppliedSearchTerm(searchName.trim());
-    setAppliedStartAfter(startAfter);
-    setAppliedEndBefore(endBefore);
-    setAppliedRateMin(rateMin);
-    setAppliedMinSpendMin(minSpendMin);
-    setAppliedPointsMin(pointsMin);
+
+    const filters = {
+        searchName: searchName.trim(),
+        startAfter: startAfter,
+        endBefore: endBefore, 
+        rateMin: rateMin, 
+        minSpendMin: minSpendMin,
+        pointsMin: pointsMin,
+        typeFilter: typeFilter,
+        sortDir: sortDir,
+        sortField: sortField
+    };
+
+    const params = new URLSearchParams();
+
+    // clean filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== "" && value !== null && value !== undefined) {
+        params.set(key, value);
+      }
+    });
+
+    router.replace(`?${params.toString()}`);
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
-    setFiltersVersion(v => v + 1); // ensure effect runs even if values identical
   };
 
   const clearFilters = () => {
@@ -136,25 +171,18 @@ export default function PromotionsPage() {
     setRateMin('');
     setMinSpendMin('');
     setPointsMin('');
-
-    setAppliedSearchTerm('');
-    setAppliedStartAfter('');
-    setAppliedEndBefore('');
-    setAppliedRateMin('');
-    setAppliedMinSpendMin('');
-    setAppliedPointsMin('');
     setPromotions([]);
     setPage(1);
     setReachedEnd(false);
-    setFiltersVersion(v => v + 1);
     fetchPromotions(1, true); // immediate refetch so one click clears
+    router.replace('/');
   };
 
   // refetch whenever any applied filter or type changes OR version increments
   useEffect(() => {
     if (!backendURL) return;
     fetchPromotions(1, true);
-  }, [appliedSearchTerm, appliedStartAfter, appliedEndBefore, appliedRateMin, appliedMinSpendMin, appliedPointsMin, typeFilter, backendURL, filtersVersion]);
+  }, [searchParams]);
 
   // initial load
   useEffect(() => {
@@ -235,9 +263,9 @@ export default function PromotionsPage() {
               const currentText = !typeFilter ? 'Any' : (typeFilter === 'automatic' ? 'Automatic' : 'One-time');
               const opts = [
                 { text: currentText, action: () => { /* primary click keeps current */ } },
-                { text: 'Any', action: () => { setTypeFilter(''); setPage(1); setReachedEnd(false); setFiltersVersion(v => v + 1); } },
-                { text: 'Automatic', action: () => { setTypeFilter('automatic'); setPage(1); setReachedEnd(false); setFiltersVersion(v => v + 1); } },
-                { text: 'One-time', action: () => { setTypeFilter('one-time'); setPage(1); setReachedEnd(false); setFiltersVersion(v => v + 1); } },
+                { text: 'Any', action: () => { setTypeFilter(''); setPage(1); setReachedEnd(false) } },
+                { text: 'Automatic', action: () => { setTypeFilter('automatic'); setPage(1); setReachedEnd(false)} },
+                { text: 'One-time', action: () => { setTypeFilter('one-time'); setPage(1); setReachedEnd(false) } },
               ];
               return (
                 <PrimaryActionDropDownButton
