@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { PrimaryButton } from '../../components/Button';
 import Notification from '../../components/Notification';
 import styles from '../event.module.css';
 
 export default function AddEventOrganizer() {
+    const searchParams = useSearchParams()
+    const initialEventId = searchParams.get('eventId') || '';
+    const [currentEventId, setCurrentEventId] = useState(initialEventId);
+
     const { user } = useAuth();
-    const [currentEventId, setCurrentEventId] = useState('');
     const [selectedUserId, setSelectedUserId] = useState('');
     const [newOrganizerUtorid, setNewOrganizerUtorid] = useState('');
     const [loading, setLoading] = useState(true);
@@ -21,7 +24,7 @@ export default function AddEventOrganizer() {
     const showNotification = (message, type = 'success') => setNotification({ isVisible: true, message, type });
     const closeNotification = () => setNotification(prev => ({ ...prev, isVisible: false }));
 
-    const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;c
+    const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     // fetch Event + Organizers
     const fetchEventOrganizer = useCallback(async (eventId) => {
@@ -38,7 +41,7 @@ export default function AddEventOrganizer() {
                 throw new Error(body.error || `Failed (HTTP ${res.status})`);
             }
             const data = await res.json();
-            console.log('[AddEventOrganizer] fetched event:', data);
+            // console.log('[AddEventOrganizer] fetched event:', data);
             setCurrentOrganizers(Array.isArray(data.organizers) ? data.organizers : []);  
         } catch (err) {
             setError(err.message);
