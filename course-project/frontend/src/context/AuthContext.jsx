@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
         setToken(1);
         fetch(`${BACKEND_URL}/users/me`, {
             method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
             // headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         })
@@ -64,7 +65,8 @@ export function AuthProvider({ children }) {
 
     fetch(`${BACKEND_URL}/users/me`, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include', 
+      headers: { 'Content-Type': 'application/json' },
     //   headers: { 'Authorization': `Bearer ${data.token}` }
     })
     .then((data) => data.json())
@@ -79,6 +81,7 @@ export function AuthProvider({ children }) {
   const loadUser = () => {
      fetch(`${BACKEND_URL}/users/me`, {
       method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     //   headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
       credentials: 'include'
     })
@@ -93,6 +96,7 @@ export function AuthProvider({ children }) {
     //   localStorage.removeItem("token");
     fetch(`${BACKEND_URL}/auth/logout`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
     });
 
