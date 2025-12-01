@@ -55,13 +55,13 @@ router.post('/', jwtAuth, async (req, res) => {
 
     // validate optional numeric fields only when provided (not null/undefined)
     if (minSpending !== undefined && minSpending !== null && !isPositiveInteger(minSpending)) {
-        return res.status(400).json({ error: "Minimum spend invalid payload" });
+        return res.status(400).json({ error: "Minimum spend must be filled in and must be a positive number" });
     }
     if (rate !== undefined && rate !== null && !isPositiveNumber(rate)) {
-        return res.status(400).json({ error: "Rate invalid payload" });
+        return res.status(400).json({ error: "Rate must be filled in and must be a positive number" });
     }
     if (points !== undefined && points !== null && !isPositiveInteger(points)) {
-        return res.status(400).json({ error: "Points invalid payload" });
+        return res.status(400).json({ error: "Points must be filled in and must be a positive number" });
     }
 
     // add to existing users if onetime
@@ -292,17 +292,17 @@ router.patch('/:promotionId', jwtAuth, async (req, res) => {
 
     if (name !== undefined && name !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (!name || typeof name !== 'string') return res.status(400).json({ error: "Invalid name" });
+        if (!name || typeof name !== 'string') return res.status(400).json({ error: "Name must exist and must be a string" });
         update.name = name;
     }
     if (description !== undefined && description !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (!description || typeof description !== 'string') return res.status(400).json({ error: "invalid description" });
+        if (!description || typeof description !== 'string') return res.status(400).json({ error: "Description must exist and must be a string" });
         update.description = description;
     }
     if (type !== undefined && type !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (type !== 'automatic' && type !== 'one-time') return res.status(400).json({ error: "invalid type" });
+        if (type !== 'automatic' && type !== 'one-time') return res.status(400).json({ error: "Type must be selected" });
         if (type === 'one-time') {
             type = 'onetime';
         }
@@ -325,17 +325,17 @@ router.patch('/:promotionId', jwtAuth, async (req, res) => {
     }
     if (minSpending !== undefined && minSpending !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (!isPositiveNumber(minSpending)) return res.status(400).json({ error: "invalid min spending" });
+        if (!isPositiveNumber(minSpending)) return res.status(400).json({ error: "Minimum spending must be a positive integer" });
         update.minSpending = minSpending;
     }
     if (rate !== undefined && rate !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (!isPositiveNumber(rate)) return res.status(400).json({ error: "invalid rate" });
+        if (!isPositiveNumber(rate)) return res.status(400).json({ error: "Rate must be positive integer" });
         update.rate = rate;
     }
     if (points !== undefined && points !==null) {
         if (startedAlready) return res.status(400).json({ error: "Cannot edit, event already started" });
-        if (!isPositiveInteger(points)) return res.status(400).json({ error: "invalid points" });
+        if (!isPositiveInteger(points)) return res.status(400).json({ error: "Points must be a positive integer" });
         update.points = points;
     }
 
