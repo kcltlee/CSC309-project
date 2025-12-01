@@ -3,7 +3,6 @@
 
 const express = require('express'); 
 const router = express.Router(); 
-const BACKEND_URL = process.env.BACKEND_URL;
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -60,7 +59,7 @@ router.post('/tokens', async (req, res) => {
         httpOnly: true,
         sameSite: "none", 
         secure: true, 
-        domain: BACKEND_URL
+        path: '/'
     });
 
     res.json({
