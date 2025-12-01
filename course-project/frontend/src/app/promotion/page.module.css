@@ -8,7 +8,7 @@
   margin-top: 1%;
   background: var(--color-background);
   padding-bottom: 32px; 
-  height: 90%;
+  height: 100%;
 }
 
 .title {
@@ -28,6 +28,7 @@
   justify-content: center;
   flex-direction: column;
   margin-bottom: 12px;
+  height: 55vh;
 }
 
 .resultsCard {

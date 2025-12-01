@@ -129,7 +129,7 @@ export default function PromotionsPage() {
     setPage(1);
     setReachedEnd(false);
     loadPromotions(1, true);
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    // if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [searchParams, user]);
 
   // infinite scroll handler
@@ -189,7 +189,6 @@ export default function PromotionsPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <main>
         <p className={styles.title}>Promotions</p>
         <PromotionSearchBar
           searchName={searchName}
@@ -308,7 +307,7 @@ export default function PromotionsPage() {
               {loading && <div>Loading…</div>}
               {error && <div style={{ color: 'red' }}>Error: {message}</div>}
               {!loading && !error && sortedPromotions.length === 0 && <div>No promotions found</div>}
-              {!loading && !error && sortedPromotions.map((p) => (
+              {sortedPromotions.map((p) => (
                 <PromotionCard
                   key={p.id}
                   {...p}
@@ -322,7 +321,6 @@ export default function PromotionsPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+     </div>
   );
 }
