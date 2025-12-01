@@ -59,6 +59,7 @@ router.post('/tokens', async (req, res) => {
         httpOnly: true,
         sameSite: "none", 
         secure: true, 
+        path: '/'
     });
 
     res.json({
