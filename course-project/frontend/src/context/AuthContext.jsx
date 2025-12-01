@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+
 const AuthContext = createContext({ user: null,
   token: null,
   login: async () => {},
@@ -23,7 +25,7 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         setInitializing(true);
         setToken(1);
-        fetch('/users/me', {
+        fetch(`${BACKEND_URL}/users/me`, {
             method: 'GET',
             // headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
@@ -44,7 +46,7 @@ export function AuthProvider({ children }) {
     }, []);
 
   const login = async (utorid, password) => {
-    const res = await fetch('/auth/tokens', {
+    const res = await fetch(`${BACKEND_URL}/auth/tokens`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ utorid, password })
@@ -59,7 +61,7 @@ export function AuthProvider({ children }) {
     setToken(data.token);
     // localStorage.setItem('token', data.token);
 
-    fetch('/users/me', {
+    fetch(`${BACKEND_URL}/users/me`, {
       method: 'GET',
       credentials: 'include'
     //   headers: { 'Authorization': `Bearer ${data.token}` }
@@ -74,7 +76,7 @@ export function AuthProvider({ children }) {
   };
 
   const loadUser = () => {
-     fetch('/users/me', {
+     fetch(`${BACKEND_URL}/users/me`, {
       method: 'GET',
     //   headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
       credentials: 'include'
@@ -88,7 +90,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     //   localStorage.removeItem("token");
-    fetch('/auth/logout', {
+    fetch(`${BACKEND_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include'
     });
