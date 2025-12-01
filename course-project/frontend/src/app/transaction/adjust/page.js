@@ -28,7 +28,7 @@ export default function Adjust() {
         }
     }, [initializing])
 
-     // // retrieve transaction info
+     // retrieve transaction info
     useEffect(() =>{
         if (!user) return;
          fetch(`${BACKEND_URL}/transactions/${transactionId}`, {
