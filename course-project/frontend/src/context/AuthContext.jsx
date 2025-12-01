@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}`,
                       'Content-Type': 'application/json' },
-            credentials: 'include'
+            // credentials: 'include'
         })
         .then(res => {
             if (!res.ok) throw new Error('Not logged in');
