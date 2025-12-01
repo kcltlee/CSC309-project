@@ -1,5 +1,7 @@
 'use client';
 
+// Template from Recharts official documentation: https://recharts.github.io/en-US/examples/BarChartHasBackground/
+
 import React from 'react';
 import {
   BarChart,
