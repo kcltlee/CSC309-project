@@ -59,7 +59,9 @@ router.post('/tokens', async (req, res) => {
     res.cookie("jwt_token", token, {
         httpOnly: true,
         sameSite: "none", 
-        secure: true
+        secure: true,
+        // domain: BACKEND_URL,
+        // path: '/'
     });
 
     res.json({
