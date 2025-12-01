@@ -3,11 +3,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PrimaryButton } from '@/app/components/Button';
 import styles from '../event.module.css';
+import { useSearchParams } from 'next/navigation';
 
 /* Manager only page to update events */
 
 export default function UpdateEvent() {
-  const [eventId, setEventId] = useState('');
+  const searchParams = useSearchParams()
+  const initialEventId = searchParams.get('eventId') || '';
+  const [eventId, setEventId] = useState(initialEventId);
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
