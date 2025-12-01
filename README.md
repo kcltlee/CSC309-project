@@ -89,6 +89,7 @@ course-project/
    cd backend
    npm install
    # Create .env (see below)
+   npx prisma migrate deploy
    npx prisma db seed
    node index.js 4000
    ```
