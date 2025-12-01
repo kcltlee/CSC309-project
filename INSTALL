@@ -1,0 +1,91 @@
+# This text file explains how to deploy the website.
+
+## 1. Prerequisite packages to install (local development)
+
+- Node.js (v18+ recommended)
+- npm (comes with Node.js)
+- SQLite3 (for local development DB)
+- Git (for cloning the repo)
+
+## 2. How to set up the backend and frontend (local)
+
+### Backend setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in `backend/` (see README for example values):
+   ```
+   PORT=4000
+   JWT_SECRET=your_jwt_secret
+   DATABASE_URL="file:./prisma/dev.db"
+   SENDGRID_API_KEY=your_sendgrid_key
+   ```
+4. (Optional) Seed the database:
+   ```bash
+   npx prisma db seed
+   ```
+5. Start the backend server:
+   ```bash
+   node index.js 4000
+   ```
+
+### Frontend setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in `frontend/`:
+   ```
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+   ```
+4. Start the frontend server:
+   ```bash
+   npm run dev
+   ```
+
+## 3. How to deploy your website on Railway
+
+- Railway is a cloud platform for Node.js apps and databases.
+- You do not need to set up a process manager; Railway manages running and restarting your app automatically.
+- Railway uses a managed Linux environment.
+
+### Backend deployment on Railway
+- Push your backend code to Railway (via GitHub integration or manual import).
+- Set environment variables in the Railway dashboard (not via `.env` files):
+  - `PORT` (usually 4000)
+  - `JWT_SECRET` (your secret)
+  - `SENDGRID_API_KEY` (for email)
+  - `DATABASE_URL` (see below)
+- For production, use Railway's managed Postgres database:
+  - Create a Postgres plugin in your Railway project.
+  - Railway will provide a `DATABASE_URL` connection string; use this in your backend environment variables.
+- Railway will build and run your backend automatically.
+
+### Frontend deployment on Railway
+- Push your frontend code to Railway (via GitHub integration or manual import).
+- Set `NEXT_PUBLIC_BACKEND_URL` in the Railway dashboard to your backend's Railway URL (e.g., `https://your-backend.up.railway.app`).
+- Railway will build and run your frontend automatically.
+
+### Notes for Railway deployment
+- You do not need to configure Nginx, Apache, or a process manager.
+- All environment variables are set in the Railway dashboard.
+- For persistent data, use Railway's managed Postgres (not SQLite).
+- Both backend and frontend can run as separate Railway services, or together if desired.
+- Railway provides public URLs for both backend and frontend.
+
+## Example Railway environment variables
+```
+PORT=4000
+JWT_SECRET=your_jwt_secret
+SENDGRID_API_KEY=your_sendgrid_key
+DATABASE_URL=postgresql://user:password@host:port/dbname
+```
