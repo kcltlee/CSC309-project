@@ -60,7 +60,8 @@ router.post('/tokens', async (req, res) => {
         httpOnly: true,
         sameSite: "none", 
         secure: true, 
-        domain: BACKEND_URL
+        domain: BACKEND_URL,
+        path: '/'
     });
 
     res.json({
