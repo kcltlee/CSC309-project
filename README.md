@@ -52,6 +52,8 @@ course-project/
 │   ├── middleware/
 │   │   ├── jwtAuth.js
 │   │   └── verifyInput.js
+|   ├── services/
+│   │   ├── notifications.js
 │   └── websocket/
 │       └── index.js
 ├── frontend/
