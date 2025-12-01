@@ -341,4 +341,9 @@ input[type="file"] {
   .form {
     width: 100%;
   }
+
+  .qr {
+    width: 70vw;
+    height: 70vw;
+  }
 }
