@@ -27,8 +27,8 @@ export function AuthProvider({ children }) {
         setToken(1);
         fetch(`${BACKEND_URL}/users/me`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            // headers: { 'Authorization': `Bearer ${token}` },
+            headers: { 'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json' },
             credentials: 'include'
         })
         .then(res => {
